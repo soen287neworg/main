@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Reserve</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"/>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+  <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+    <div class="container">
+      <a class="navbar-brand fw-bold" href="index.html">Campus Resources</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarNav">
+        <ul class="navbar-nav mx-auto">
+          <li class="nav-item"><a class="nav-link" href="index.html">Main</a></li>
+          <li class="nav-item"><a class="nav-link" href="resources.html">Resources</a></li>
+        </ul>
+        <div class="d-flex">
+          <a href="profile.html" class="btn btn-outline-primary me-2">My Account</a>
+          <a href="sign_up.html" class="btn btn-primary">Sign Out</a>
+        </div>
+      </div>
+    </div>
+  </nav>
+
+  <main class="container py-5">
+    <div id="room-header" class="mb-3"></div>
+
+    <div class="card">
+      <div class="card-body">
+        <form id="booking-form" class="row g-3">
+          <div class="col-md-4">
+            <label class="form-label">Date</label>
+            <input type="date" class="form-control" id="date" required>
+          </div>
+          <div class="col-md-8 d-flex align-items-end">
+            <button class="btn btn-outline-secondary me-2" type="button" id="prevDay">← Prev</button>
+            <button class="btn btn-outline-secondary" type="button" id="nextDay">Next →</button>
+            <button class="btn btn-outline-danger ms-2" type="button" id="resetDay">Reset day</button>
+          </div>
+
+          <div class="col-12">
+            <div id="slot-grid" class="d-flex flex-wrap gap-2"></div>
+            <input type="hidden" id="start" required>
+            <input type="hidden" id="end" required>
+          </div>
+
+          <div class="col-12 d-flex justify-content-between">
+            <div id="conflictMsg" class="text-danger small"></div>
+            <button class="btn btn-primary">Request booking</button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <div class="mt-3">
+      <h5 class="mb-2">Existing bookings for the day</h5>
+      <ul id="day-bookings" class="list-group"></ul>
+    </div>
+  </main>
+
+<script type="module">
+  import { loadRooms } from './js/data.js';
+  import { getDayBookings, saveBooking } from './js/store.js';
+
+  const qs = new URL(location.href).searchParams;
+  const roomId = qs.get('id');
+
+  const header      = document.getElementById('room-header');
+  const form        = document.getElementById('booking-form');
+  const dateInput   = document.getElementById('date');
+  const slotGrid    = document.getElementById('slot-grid');
+  const dayList     = document.getElementById('day-bookings');
+  const conflictMsg = document.getElementById('conflictMsg');
+  const prevBtn     = document.getElementById('prevDay');
+  const nextBtn     = document.getElementById('nextDay');
+
+  let room;
+  let openStart = 9 * 60;
+  let openEnd   = 21 * 60;
+  let slotMinutes = 30;
+  let selectedSlots = [];
+
+  function minutesToHHMM(m) {
+    const h = String(Math.floor(m / 60)).padStart(2, '0');
+    const mm = String(m % 60).padStart(2, '0');
+    return `${h}:${mm}`;
+  }
+  function HHMMToMinutes(s) {
+    const [h, m] = s.split(':').map(Number);
+    return h * 60 + m;
+  }
+  function parseOpenHours(s) {
+    const [a, b] = (s || '09:00-21:00').split('-');
+    return [HHMMToMinutes(a), HHMMToMinutes(b)];
+  }
+
+  function toISODateLocal(d) {
+    const y = d.getFullYear();
+    const m = String(d.getMonth() + 1).padStart(2, '0');
+    const da = String(d.getDate()).padStart(2, '0');
+    return `${y}-${m}-${da}`;
+  }
+  const today = new Date();
+  const monthEnd = new Date(today.getFullYear(), today.getMonth() + 1, 0);
+  const MIN_ISO = toISODateLocal(today);
+  const MAX_ISO = toISODateLocal(monthEnd);
+
+  function clampToMonth(iso) {
+    if (iso < MIN_ISO) return MIN_ISO;
+    if (iso > MAX_ISO) return MAX_ISO;
+    return iso;
+  }
+  function setDateInputISO(iso) {
+    dateInput.value = clampToMonth(iso);
+    updateNavButtons();
+  }
+  function setDateInputDate(d) {
+    setDateInputISO(toISODateLocal(d));
+  }
+  function getDateISO() {
+    return clampToMonth(dateInput.value || MIN_ISO);
+  }
+  function updateNavButtons() {
+    const iso = getDateISO();
+    prevBtn.disabled = (iso <= MIN_ISO);
+    nextBtn.disabled = (iso >= MAX_ISO);
+  }
+
+  function generateSlots() {
+    const out = [];
+    for (let t = openStart; t + slotMinutes <= openEnd; t += slotMinutes) {
+      out.push([t, t + slotMinutes]);
+    }
+    return out;
+  }
+  function overlaps(aS, aE, bS, bE) {
+    return aS < bE && bS < aE;
+  }
+
+  function consolidateBookings(bookings) {
+    if (bookings.length === 0) return [];
+
+    const sorted = bookings.map(b => ({
+      start: HHMMToMinutes(b.start),
+      end: HHMMToMinutes(b.end),
+      name: b.name
+    })).sort((a, b) => a.start - b.start);
+
+    const consolidated = [sorted[0]];
+
+    for (let i = 1; i < sorted.length; i++) {
+      const last = consolidated[consolidated.length - 1];
+      const curr = sorted[i];
+
+      if (curr.start === last.end) {
+        last.end = curr.end;
+      } else {
+        consolidated.push(curr);
+      }
+    }
+
+    return consolidated.map(b => ({
+      start: minutesToHHMM(b.start),
+      end: minutesToHHMM(b.end),
+      name: b.name
+    }));
+  }
+
+  function renderHeader(r) {
+    header.innerHTML = `
+      <div class="card">
+        <div class="card-body d-flex gap-3 align-items-center">
+          <img src="${r.image}" alt="${r.title}" style="width:120px;height:80px;object-fit:cover;border-radius:8px;">
+          <div>
+            <h2 class="mb-1">${r.title}</h2>
+                <div class="text-muted">${r.location || ''} • Capacity ${r.capacity || ''} • ${r.note || ''}</div>          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  function renderDayBookings(iso) {
+    const bookings = getDayBookings(roomId, iso);
+    const consolidated = consolidateBookings(bookings);
+    dayList.innerHTML = consolidated.length
+      ? consolidated.map(b =>
+          `<li class="list-group-item d-flex justify-content-between">
+            <span>${b.start}–${b.end}</span>
+            <span class="text-muted small">${b.name || 'Reserved'}</span>
+          </li>`).join('')
+      : `<li class="list-group-item text-muted">No bookings yet.</li>`;
+  }
+
+  function isSameSlot(a, b) { return a.start === b.start && a.end === b.end; }
+
+  function renderSlotGrid(iso) {
+    const existing = getDayBookings(roomId, iso).map(b => ({
+      start: HHMMToMinutes(b.start),
+      end: HHMMToMinutes(b.end)
+    }));
+    const slots = generateSlots();
+    slotGrid.innerHTML = '';
+
+    selectedSlots = [];
+
+    slots.forEach(([s, e]) => {
+      const taken = existing.some(b => overlaps(s, e, b.start, b.end));
+      const btn = document.createElement('button');
+      btn.type = 'button';
+      btn.textContent = `${minutesToHHMM(s)}–${minutesToHHMM(e)}`;
+
+      if (taken) {
+        btn.className = 'btn btn-sm btn-danger text-white';
+        btn.disabled = true;
+      } else {
+        btn.className = 'btn btn-sm btn-success';
+        btn.addEventListener('click', () => {
+          const slot = { start: s, end: e };
+          const idx = selectedSlots.findIndex(x => isSameSlot(x, slot));
+          if (idx >= 0) {
+            selectedSlots.splice(idx, 1);
+            btn.classList.remove('active');
+          } else {
+            selectedSlots.push(slot);
+            btn.classList.add('active');
+          }
+          conflictMsg.textContent = '';
+        });
+      }
+
+      slotGrid.appendChild(btn);
+    });
+  }
+
+  function shiftDate(days) {
+    const [Y, M, D] = getDateISO().split('-').map(Number);
+    const d = new Date(Y, M - 1, D);
+    d.setDate(d.getDate() + days);
+    setDateInputDate(d);
+    const iso = getDateISO();
+    renderSlotGrid(iso);
+    renderDayBookings(iso);
+  }
+
+  (async function init() {
+    if (!roomId) {
+      header.innerHTML = `<div class="alert alert-warning">Missing room id.</div>`;
+      form?.remove?.();
+      return;
+    }
+
+    try {
+      const rooms = await loadRooms();
+      room = rooms.find(r => r.id === roomId);
+      if (!room) {
+        header.innerHTML = `<div class="alert alert-danger">Room not found.</div>`;
+        form?.remove?.();
+        return;
+      }
+
+      [openStart, openEnd] = parseOpenHours(room.openHours || '09:00-21:00');
+      slotMinutes = Number(room.slotMinutes || 30);
+
+      dateInput.min = MIN_ISO;
+      dateInput.max = MAX_ISO;
+
+      renderHeader(room);
+
+      setDateInputDate(today);
+      const iso = getDateISO();
+      renderSlotGrid(iso);
+      renderDayBookings(iso);
+
+      prevBtn.addEventListener('click', () => shiftDate(-1));
+      nextBtn.addEventListener('click', () => shiftDate(1));
+
+      dateInput.addEventListener('change', () => {
+        setDateInputISO(getDateISO());
+        const dIso = getDateISO();
+        renderSlotGrid(dIso);
+        renderDayBookings(dIso);
+      });
+
+      form.addEventListener('submit', (e) => {
+        e.preventDefault();
+        const isoDate = getDateISO();
+
+        if (selectedSlots.length === 0) {
+          conflictMsg.textContent = 'Please choose at least one time slot.';
+          return;
+        }
+
+        const booked = getDayBookings(roomId, isoDate).map(b => ({
+          start: HHMMToMinutes(b.start), end: HHMMToMinutes(b.end)
+        }));
+        for (const s of selectedSlots) {
+          if (booked.some(b => overlaps(s.start, s.end, b.start, b.end))) {
+            conflictMsg.textContent = 'One or more selected slots are no longer available.';
+            return;
+          }
+        }
+        
+const user = JSON.parse(localStorage.getItem("user") || "{}");
+const resourceName = room.title || roomId;
+
+selectedSlots.forEach(s => {
+  saveBooking({
+    roomId,
+    date: isoDate,
+    start: minutesToHHMM(s.start),
+    end: minutesToHHMM(s.end),
+    name: user.email,
+    resourceName
+  });
+});
+
+window.location.replace("profile.html");
+       
+        renderSlotGrid(isoDate);
+        renderDayBookings(isoDate);
+        selectedSlots = [];
+        conflictMsg.textContent = '';
+
+        alert(`Booked ${selectedSlots.length || 'your'} slot(s) for ${room.title} on ${isoDate}.`);
+      });
+    } catch (err) {
+      header.innerHTML = `<div class="alert alert-danger">Could not load room data.</div>`;
+      console.error(err);
+    }
+  })();
+  window.addEventListener('storage', (e) => {
+  if (e.key && e.key !== 'bookingsDB') return; 
+  const iso = getDateISO();       
+  renderSlotGrid(iso);            
+  renderDayBookings(iso);         
+});
+
+import { read, write } from './js/store.js';
+
+document.getElementById('resetDay').addEventListener('click', () => {
+  const iso = getDateISO();           
+  const db = read();
+  if (!db[roomId]?.[iso]) {               
+    renderSlotGrid(iso);
+    renderDayBookings(iso);
+    return;
+  }
+
+  if (!confirm(`Clear ALL bookings for ${iso}?`)) return;
+
+  delete db[roomId][iso];        
+  if (Object.keys(db[roomId]).length === 0) delete db[roomId];
+  write(db);
+
+  selectedSlots = [];
+  renderSlotGrid(iso);
+  renderDayBookings(iso);
+});
+</script>
+
+  <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

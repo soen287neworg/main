@@ -1,0 +1,125 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Resource Statistics</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<script>
+  (function () {
+    function handleLogoutClick(e) {
+      e.preventDefault();
+      try {
+        localStorage.removeItem('isLoggedIn');
+        localStorage.removeItem('currentUser');
+      } catch (_) {}
+      window.location.href = "sign_in.html";
+    }
+
+    if (document.readyState === "loading") {
+      document.addEventListener("DOMContentLoaded", function () {
+        var btn = document.getElementById("logoutBtn");
+        if (btn) btn.addEventListener("click", handleLogoutClick);
+      });
+    } else {
+      var btn = document.getElementById("logoutBtn");
+      if (btn) btn.addEventListener("click", handleLogoutClick);
+    }
+  })();
+</script>
+
+ <nav class="navbar navbar-expand-lg navbar-light bg-white fixed-top shadow-sm">
+  <div class="container">
+    <a class="navbar-brand fw-bold" href="administrator_hub copie.html">Admin Hub</a>
+    <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav"
+            aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+      <span class="navbar-toggler-icon"></span>
+      </button>
+    <div class="collapse navbar-collapse" id="navbarNav">
+      <ul class="navbar-nav mx-auto">
+        <li class="nav-item"><a class="nav-link active" href="manage.html">Manage Resources</a></li>
+        <li class="nav-item"><a class="nav-link" href="bookings.html">Manage Bookings</a></li>
+        <li class="nav-item"><a class="nav-link" href="stats.html">View Statistics</a></li>
+        <button id="logoutBtn" class="btn btn-outline-danger">Logout</button>
+        <li class ="nav-item" id="admin-link" style="display: none;">
+        </li>
+        </ul>
+    </button>
+
+  </div>
+</nav>
+
+<main class="container mt-5 pt-5">
+  <h1 class="text-center mb-4">📊 Resource Statistics</h1>
+
+  <div id="statsContainer" class="row justify-content-center">
+    <div class="col-md-6">
+      <div class="card shadow-sm p-4 mb-3">
+        <p><strong>Total Resources:</strong> <span id="totalResources">0</span></p>
+        <p><strong>Total Bookings:</strong> <span id="totalBookings">0</span></p>
+        <p><strong>Most Booked Resource:</strong> <span id="mostBooked">N/A</span></p>
+      </div>
+      <div class="text-center">
+        <a href="administrator_hub copie.html" class="btn btn-outline-secondary">⬅ Back to Admin Page</a>
+      </div>
+    </div>
+  </div>
+</main>
+
+<footer class="footer border-top mt-5 py-3">
+  <div class="container text-center">
+    <p>© 2025 Campus Booking | Concordia University Project</p>
+  </div>
+</footer>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+
+<script type="module">
+  import { loadRooms } from './js/data.js';
+
+  document.addEventListener('DOMContentLoaded', async () => {
+    try {
+      // Load resources
+      const resources = await loadRooms();
+
+      // Retrieve bookings (if saved in localStorage)
+      const bookings = JSON.parse(localStorage.getItem("bookings")) || [];
+
+      //total resources
+      const totalResources = resources.length;
+
+      //total bookings
+      const totalBookings = bookings.length;
+
+      // most booked resource
+      let bookingCounts = {};
+      bookings.forEach(b => {
+        const id = b.resourceId;
+        bookingCounts[id] = (bookingCounts[id] || 0) + 1;
+      });
+
+      let mostBooked = "N/A";
+      if (Object.keys(bookingCounts).length > 0) {
+        const topId = Object.keys(bookingCounts).reduce((a, b) => bookingCounts[a] > bookingCounts[b] ? a : b);
+        const topResource = resources.find(r => r.id === topId);
+        mostBooked = topResource ? `${topResource.title} (${bookingCounts[topId]} bookings)` : topId;
+      }
+
+      //Display
+      document.getElementById('totalResources').textContent = totalResources;
+      document.getElementById('totalBookings').textContent = totalBookings;
+      document.getElementById('mostBooked').textContent = mostBooked;
+
+    } catch (error) {
+      console.error("Error loading statistics:", error);
+      alert("Failed to load statistics data.");
+    }
+  });
+</script>
+
+</body>
+</html>
