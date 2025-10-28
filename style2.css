@@ -1,53 +1,78 @@
-html,
+/* === GLOBAL PAGE LAYOUT === */
 body {
-  height: 100%;
-}
-.width{
-    width: 300px;
-}
-
-img{
-    border-radius: 5px;
-}
-
-body {
+  font-family: 'Poppins', sans-serif;
+  background-color: #f8f9fa;
   display: flex;
-  align-items: center;
+  flex-direction: column;
   justify-content: center;
-  padding-top: 40px;
-  padding-bottom: 40px;
-  background-color: #f5f5f5;
+  align-items: center;
+  min-height: 100vh;
+  margin: 0;
 }
 
-.form-signin {
-  max-width: 330px;
-  padding: 15px;
+/* === SIGN-IN / SIGN-UP FORM WRAPPER === */
+.width {
+  width: 100%;
+  max-width: 380px;
+  background: #fff;
+  padding: 40px 30px;
+  border-radius: 10px;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
   text-align: center;
 }
 
-.form-signin input[type="email"],
-.form-signin input[type="password"] {
-  margin-bottom: -1px;
-  border-radius: 0;
+/* === IMAGE === */
+.width img {
+  display: block;
+  margin: 0 auto 20px auto;
+  border-radius: 8px;
+  object-fit: cover;
 }
 
-.form-signin input[type="email"] {
-  border-bottom-right-radius: 0;
-  border-bottom-left-radius: 0;
+/* === TITLES AND TEXT === */
+h1.h3 {
+  font-weight: 700;
+  color: #333;
+  margin-bottom: 1.5rem;
 }
 
-.form-signin input[type="password"] {
-  margin-bottom: 10px;
-  border-top-left-radius: 0;
-  border-top-right-radius: 0;
+/* === BUTTONS === */
+.btn-primary {
+  background-color: #f6b144 !important;  /* same as Sign Up in navbar */
+  border-color: #f6b144 !important;
+  color: #fff !important;
+  font-weight: 600;
+  transition: all 0.2s ease-in-out;
 }
 
-.form-signin label,
-.form-signin input::placeholder {
-  color: #6c757d; 
-  font-size: 0.80rem;
+.btn-primary:hover {
+  background-color: #e29a1f !important;
+  border-color: #e29a1f !important;
 }
 
-.checkbox {
-  color: #6c757d;
+/* === LINKS === */
+a {
+  color: #f6b144;
+  text-decoration: none;
+}
+
+a:hover {
+  color: #e29a1f;
+  text-decoration: underline;
+}
+
+/* === CHECKBOX AREA === */
+.form-check-label {
+  font-size: 0.9rem;
+  color: #555;
+}
+
+.form-check-input {
+  accent-color: #f6b144; /* custom orange checkbox color */
+}
+
+/* === FOOTER COPYRIGHT === */
+.text-body-secondary {
+  font-size: 0.8rem;
+  color: #aaa !important;
 }
