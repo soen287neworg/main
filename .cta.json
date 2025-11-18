@@ -1,0 +1,12 @@
+{
+  "projectName": "main",
+  "mode": "file-router",
+  "typescript": true,
+  "tailwind": true,
+  "packageManager": "yarn",
+  "git": true,
+  "addOnOptions": {},
+  "version": 1,
+  "framework": "react-cra",
+  "chosenAddOns": ["start", "nitro"]
+}
