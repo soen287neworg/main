@@ -2,6 +2,7 @@ import { PrismaClient } from "@/generated/prisma/client";
 import { PrismaPg } from "@prisma/adapter-pg";
 import path from "path";
 import fs from "fs/promises";
+import { pathToFileURL } from "url";
 
 const adapter = new PrismaPg({
   connectionString: process.env.DATABASE_URL!,
@@ -32,7 +33,7 @@ export async function main() {
     const seedFiles = await readSeedFiles(seedingsDir);
     for (const file of seedFiles) {
       console.log(`Seeding from ${file}...`);
-      const seeder = await import(file);
+      const seeder = await import(pathToFileURL(file).href);
       if (seeder.default && typeof seeder.default.seed === "function") {
         await seeder.default.seed(prisma);
         console.log(`Finished seeding from ${file}`);
