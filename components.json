@@ -6,11 +6,18 @@
   "tailwind": {
     "config": "",
     "css": "src/styles.css",
+<<<<<<< Updated upstream
     "baseColor": "neutral",
     "cssVariables": true,
     "prefix": ""
   },
   "iconLibrary": "lucide",
+=======
+    "baseColor": "zinc",
+    "cssVariables": true,
+    "prefix": ""
+  },
+>>>>>>> Stashed changes
   "aliases": {
     "components": "@/components",
     "utils": "@/lib/utils",
@@ -18,5 +25,10 @@
     "lib": "@/lib",
     "hooks": "@/hooks"
   },
+<<<<<<< Updated upstream
   "registries": {}
 }
+=======
+  "iconLibrary": "lucide"
+}
+>>>>>>> Stashed changes

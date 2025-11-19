@@ -10,8 +10,12 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+<<<<<<< Updated upstream
 import { Route as UserSign_inUserRouteImport } from './routes/user/sign_in/user'
 import { Route as UserSign_inRegisterRouteImport } from './routes/user/sign_in/register'
+=======
+import { Route as BookingRoomsIndexRouteImport } from './routes/booking/rooms.index'
+>>>>>>> Stashed changes
 import { Route as BookingRoomsRoomIdRouteImport } from './routes/booking/rooms.$roomId'
 import { Route as BookingBookingBookingIdRouteImport } from './routes/booking/booking.$bookingId'
 
@@ -20,6 +24,7 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+<<<<<<< Updated upstream
 const UserSign_inUserRoute = UserSign_inUserRouteImport.update({
   id: '/user/sign_in/user',
   path: '/user/sign_in/user',
@@ -28,6 +33,11 @@ const UserSign_inUserRoute = UserSign_inUserRouteImport.update({
 const UserSign_inRegisterRoute = UserSign_inRegisterRouteImport.update({
   id: '/user/sign_in/register',
   path: '/user/sign_in/register',
+=======
+const BookingRoomsIndexRoute = BookingRoomsIndexRouteImport.update({
+  id: '/booking/rooms/',
+  path: '/booking/rooms/',
+>>>>>>> Stashed changes
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingRoomsRoomIdRoute = BookingRoomsRoomIdRouteImport.update({
@@ -45,23 +55,35 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/booking/booking/$bookingId': typeof BookingBookingBookingIdRoute
   '/booking/rooms/$roomId': typeof BookingRoomsRoomIdRoute
+<<<<<<< Updated upstream
   '/user/sign_in/register': typeof UserSign_inRegisterRoute
   '/user/sign_in/user': typeof UserSign_inUserRoute
+=======
+  '/booking/rooms': typeof BookingRoomsIndexRoute
+>>>>>>> Stashed changes
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/booking/booking/$bookingId': typeof BookingBookingBookingIdRoute
   '/booking/rooms/$roomId': typeof BookingRoomsRoomIdRoute
+<<<<<<< Updated upstream
   '/user/sign_in/register': typeof UserSign_inRegisterRoute
   '/user/sign_in/user': typeof UserSign_inUserRoute
+=======
+  '/booking/rooms': typeof BookingRoomsIndexRoute
+>>>>>>> Stashed changes
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/booking/booking/$bookingId': typeof BookingBookingBookingIdRoute
   '/booking/rooms/$roomId': typeof BookingRoomsRoomIdRoute
+<<<<<<< Updated upstream
   '/user/sign_in/register': typeof UserSign_inRegisterRoute
   '/user/sign_in/user': typeof UserSign_inUserRoute
+=======
+  '/booking/rooms/': typeof BookingRoomsIndexRoute
+>>>>>>> Stashed changes
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -69,30 +91,46 @@ export interface FileRouteTypes {
     | '/'
     | '/booking/booking/$bookingId'
     | '/booking/rooms/$roomId'
+<<<<<<< Updated upstream
     | '/user/sign_in/register'
     | '/user/sign_in/user'
+=======
+    | '/booking/rooms'
+>>>>>>> Stashed changes
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/booking/booking/$bookingId'
     | '/booking/rooms/$roomId'
+<<<<<<< Updated upstream
     | '/user/sign_in/register'
     | '/user/sign_in/user'
+=======
+    | '/booking/rooms'
+>>>>>>> Stashed changes
   id:
     | '__root__'
     | '/'
     | '/booking/booking/$bookingId'
     | '/booking/rooms/$roomId'
+<<<<<<< Updated upstream
     | '/user/sign_in/register'
     | '/user/sign_in/user'
+=======
+    | '/booking/rooms/'
+>>>>>>> Stashed changes
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookingBookingBookingIdRoute: typeof BookingBookingBookingIdRoute
   BookingRoomsRoomIdRoute: typeof BookingRoomsRoomIdRoute
+<<<<<<< Updated upstream
   UserSign_inRegisterRoute: typeof UserSign_inRegisterRoute
   UserSign_inUserRoute: typeof UserSign_inUserRoute
+=======
+  BookingRoomsIndexRoute: typeof BookingRoomsIndexRoute
+>>>>>>> Stashed changes
 }
 
 declare module '@tanstack/react-router' {
@@ -104,6 +142,7 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+<<<<<<< Updated upstream
     '/user/sign_in/user': {
       id: '/user/sign_in/user'
       path: '/user/sign_in/user'
@@ -116,6 +155,13 @@ declare module '@tanstack/react-router' {
       path: '/user/sign_in/register'
       fullPath: '/user/sign_in/register'
       preLoaderRoute: typeof UserSign_inRegisterRouteImport
+=======
+    '/booking/rooms/': {
+      id: '/booking/rooms/'
+      path: '/booking/rooms'
+      fullPath: '/booking/rooms'
+      preLoaderRoute: typeof BookingRoomsIndexRouteImport
+>>>>>>> Stashed changes
       parentRoute: typeof rootRouteImport
     }
     '/booking/rooms/$roomId': {
@@ -139,8 +185,12 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookingBookingBookingIdRoute: BookingBookingBookingIdRoute,
   BookingRoomsRoomIdRoute: BookingRoomsRoomIdRoute,
+<<<<<<< Updated upstream
   UserSign_inRegisterRoute: UserSign_inRegisterRoute,
   UserSign_inUserRoute: UserSign_inUserRoute,
+=======
+  BookingRoomsIndexRoute: BookingRoomsIndexRoute,
+>>>>>>> Stashed changes
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
