@@ -64,42 +64,7 @@ const features = [
 function LandingPage() {
   return (
     <div className=" min-h-screen bg-slate-50 flex flex-col">
-      {/* Top Nav */}
-      <header className="w-full border-b bg-white">
-        <div className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-semibold text-slate-900">
-              Campus Booking
-            </span>
-          </div>
-
-          <nav className="hidden md:flex items-center gap-6 text-sm text-slate-600">
-            <a href="#" className="hover:text-slate-900">
-              Main
-            </a>
-            <a href="#" className="hover:text-slate-900">
-              Resources
-            </a>
-          </nav>
-
-          <div className="flex items-center gap-2">
-            <Link to="/user/sign_in/user">
-              <Button
-                variant="outline"
-                className="border-amber-200 text-amber-600 bg-white hover:bg-amber-50"
-              >
-                Sign In
-              </Button>
-            </Link>
-            <Link to="/user/sign_in/register">
-              <Button className="bg-amber-400 hover:bg-amber-500 text-white">
-                Sign Up
-              </Button>
-            </Link>
-          </div>
-        </div>
-      </header>
-
+     
       {/* Hero Section */}
       <main className="flex-1 flex items-center">
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
