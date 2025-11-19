@@ -10,12 +10,24 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as UserSign_inUserRouteImport } from './routes/user/sign_in/user'
+import { Route as UserSign_inRegisterRouteImport } from './routes/user/sign_in/register'
 import { Route as BookingRoomsRoomIdRouteImport } from './routes/booking/rooms.$roomId'
 import { Route as BookingBookingBookingIdRouteImport } from './routes/booking/booking.$bookingId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserSign_inUserRoute = UserSign_inUserRouteImport.update({
+  id: '/user/sign_in/user',
+  path: '/user/sign_in/user',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const UserSign_inRegisterRoute = UserSign_inRegisterRouteImport.update({
+  id: '/user/sign_in/register',
+  path: '/user/sign_in/register',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookingRoomsRoomIdRoute = BookingRoomsRoomIdRouteImport.update({
@@ -33,34 +45,54 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/booking/booking/$bookingId': typeof BookingBookingBookingIdRoute
   '/booking/rooms/$roomId': typeof BookingRoomsRoomIdRoute
+  '/user/sign_in/register': typeof UserSign_inRegisterRoute
+  '/user/sign_in/user': typeof UserSign_inUserRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/booking/booking/$bookingId': typeof BookingBookingBookingIdRoute
   '/booking/rooms/$roomId': typeof BookingRoomsRoomIdRoute
+  '/user/sign_in/register': typeof UserSign_inRegisterRoute
+  '/user/sign_in/user': typeof UserSign_inUserRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/booking/booking/$bookingId': typeof BookingBookingBookingIdRoute
   '/booking/rooms/$roomId': typeof BookingRoomsRoomIdRoute
+  '/user/sign_in/register': typeof UserSign_inRegisterRoute
+  '/user/sign_in/user': typeof UserSign_inUserRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/booking/booking/$bookingId' | '/booking/rooms/$roomId'
+  fullPaths:
+    | '/'
+    | '/booking/booking/$bookingId'
+    | '/booking/rooms/$roomId'
+    | '/user/sign_in/register'
+    | '/user/sign_in/user'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/booking/booking/$bookingId' | '/booking/rooms/$roomId'
+  to:
+    | '/'
+    | '/booking/booking/$bookingId'
+    | '/booking/rooms/$roomId'
+    | '/user/sign_in/register'
+    | '/user/sign_in/user'
   id:
     | '__root__'
     | '/'
     | '/booking/booking/$bookingId'
     | '/booking/rooms/$roomId'
+    | '/user/sign_in/register'
+    | '/user/sign_in/user'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BookingBookingBookingIdRoute: typeof BookingBookingBookingIdRoute
   BookingRoomsRoomIdRoute: typeof BookingRoomsRoomIdRoute
+  UserSign_inRegisterRoute: typeof UserSign_inRegisterRoute
+  UserSign_inUserRoute: typeof UserSign_inUserRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -70,6 +102,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user/sign_in/user': {
+      id: '/user/sign_in/user'
+      path: '/user/sign_in/user'
+      fullPath: '/user/sign_in/user'
+      preLoaderRoute: typeof UserSign_inUserRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/user/sign_in/register': {
+      id: '/user/sign_in/register'
+      path: '/user/sign_in/register'
+      fullPath: '/user/sign_in/register'
+      preLoaderRoute: typeof UserSign_inRegisterRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/booking/rooms/$roomId': {
@@ -93,6 +139,8 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BookingBookingBookingIdRoute: BookingBookingBookingIdRoute,
   BookingRoomsRoomIdRoute: BookingRoomsRoomIdRoute,
+  UserSign_inRegisterRoute: UserSign_inRegisterRoute,
+  UserSign_inUserRoute: UserSign_inUserRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
