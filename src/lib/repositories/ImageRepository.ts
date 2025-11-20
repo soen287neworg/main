@@ -10,7 +10,7 @@ export const uploadImage = async (
   image: File,
   acl: string
 ) => {
-  const fileKey = `directory/${randomUUID()}`;
+  const fileKey = `${directory}/${randomUUID()}`;
 
   const command = new PutObjectCommand({
     Bucket: bucket,

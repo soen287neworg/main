@@ -48,6 +48,7 @@
     "@tanstack/react-router-ssr-query": "^1.136.9",
     "@tanstack/react-start": "^1.136.9",
     "@tanstack/router-plugin": "^1.136.9",
+    "@tanstack/zod-form-adapter": "^0.42.1",
     "better-auth": "^1.3.34",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",

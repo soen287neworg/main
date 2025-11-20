@@ -8,6 +8,7 @@ import {
   HoverCardTrigger,
   HoverCardContent,
 } from "@/components/ui/hover-card";
+import { Input } from "@/components/ui/input";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -64,7 +65,6 @@ const features = [
 function LandingPage() {
   return (
     <div className=" min-h-screen bg-slate-50 flex flex-col">
-     
       {/* Hero Section */}
       <main className="flex-1 flex items-center">
         <section className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">

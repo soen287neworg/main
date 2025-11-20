@@ -1,350 +1,210 @@
 import * as React from "react";
-import type { FormEvent } from "react";
-import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-// shadcn/ui components
+import { createFileRoute, Link } from "@tanstack/react-router";
+import { useForm } from "@tanstack/react-form";
+import { z } from "zod";
+
+// UI Components
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { createServerFn } from "@tanstack/react-start";
-
-import {
-  createServerValidate,
-  formOptions,
-  getFormData,
-  mergeForm,
-  ServerValidateError,
-  useForm,
-  useStore,
-  useTransform,
-} from "@tanstack/react-form-start";
-
 import { setResponseStatus } from "@tanstack/react-start/server";
-import { auth } from "@/lib/auth";
 
-const formTemplate = formOptions({
-  defaultValues: {
-    firstName: "",
-
-    lastName: "",
-
-    age: 0,
-
-    email: "",
-
-    password: "",
-  },
-});
-
-const validateForm = createServerValidate({
-  ...formTemplate,
-
-  onServerValidate: ({ value }) => {
-    const errors: {
-      firstName?: string;
-
-      lastName?: string;
-
-      age?: string;
-
-      email?: string;
-
-      password?: string;
-    } = {};
-
-    if (!value.firstName.trim().length) {
-      errors.firstName = "First Name required";
-    }
-
-    if (!value.lastName.trim().length) {
-      errors.lastName = "Last Name required";
-    }
-
-    if (value.age < 13) {
-      errors.age = "This service is available to people over the age of 13";
-    }
-
-    if (!value.email.trim().length) {
-      errors.email = "Email cannot be empty";
-    }
-
-    if (value.password.trim().length < 8) {
-      errors.password = "Password must be at least 8 characters";
-    }
-
-    if (Object.keys(errors).length > 0) {
-      return errors;
-    }
-  },
+const registerSchema = z.object({
+  firstName: z.string().min(2, "First Name is required"),
+  lastName: z.string().min(2, "Last Name is required"),
+  age: z.coerce.number().min(13, "You must be at least 13 years old"),
+  email: z.string().email("Invalid email address"),
+  password: z.string().min(8, "Password must be at least 8 characters"),
 });
 
 export const handleForm = createServerFn({ method: "POST" })
-  .inputValidator((data: unknown) => {
+  .inputValidator((data) => {
     if (!(data instanceof FormData)) {
       throw new Error("Invalid form data");
     }
-
     return data;
   })
-
   .handler(async (ctx) => {
+    const formData = ctx.data;
     try {
-      const validated = await validateForm(ctx.data);
-      // auth logic here
-    } catch (e) {
-      if (e instanceof ServerValidateError) {
-        return e.response;
+      const data = Object.fromEntries(formData.entries());
+      const parsedData = registerSchema.parse(data);
+      //
+      // Here would be your auth logic, e.g., creating a user in the database
+      //
+      console.log("User registered successfully:", parsedData);
+      return { success: true };
+    } catch (error) {
+      if (error instanceof z.ZodError) {
+        setResponseStatus(400);
+        return { success: false, errors: error.flatten().fieldErrors };
       }
-
       setResponseStatus(500);
-
-      return "There was a server error";
+      return { success: false, error: "An unexpected error occurred." };
     }
-
-    return "Account created successfully";
   });
 
 export const Route = createFileRoute("/user/sign_in/register")({
-  component: RouteComponent,
-
-  loader: async () => ({
-    state: getFormData(),
-  }),
+  component: RegisterPage,
 });
 
-function RouteComponent() {
-  const { state } = Route.useLoaderData();
-
+function RegisterPage() {
   const form = useForm({
-    ...formTemplate,
-
-    transform: useTransform((baseForm) => mergeForm(baseForm, state), [state]),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      age: "",
+      email: "",
+      password: "",
+    },
   });
 
-  const formErrors = useStore(form.store, (formState) => formState.errors);
-
   return (
-    <div className="min-h-screen flex items-center justify-center bg-slate-50scale-110 lg:scale-125 ">
+    <div className="min-h-screen flex items-center justify-center bg-slate-50">
       <Card className="w-full max-w-sm border-none shadow-lg rounded-2xl px-6 py-8">
         <CardContent className="p-0">
-          {/* Top image */}
-
           <img
             src="/public/image_landing.png"
             alt="People collaborating"
-            className="w-full h-70 object-cover rounded-xl mb-6"
+            className="w-full h-auto object-cover rounded-xl mb-6"
           />
-
-          {/* Title */}
-
           <h1 className="text-2xl font-semibold text-center mb-6 text-slate-900">
             Please sign up
           </h1>
 
-          {/* Form */}
-
           <form
             action={handleForm.url}
-            method="post"
-            encType="multipart/formData"
+            method="POST"
+            encType="multipart/form-data"
             className="space-y-4"
           >
-            {/* First + Last name */}
-
             <div className="flex flex-col gap-3 sm:flex-row sm:gap-4">
-              <div className="w-full space-y-1">
-                <form.Field
-                  name="firstName"
-                  validators={{
-                    onChange: ({ value }) =>
-                      value.trim().length ? "First Name required" : undefined,
-                  }}
-                >
-                  {(field) => (
-                    <>
-                      <Label htmlFor="firstName">First name</Label>
-
-                      <Input
-                        id="firstName"
-                        name="firstName"
-                        placeholder="John"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        required
-                      />
-
-                      {field.state.meta.errors.map((error) => (
-                        <p key={error as string}>{error}</p>
-                      ))}
-                    </>
-                  )}
-                </form.Field>
-              </div>
-
-              <div className="w-full space-y-1">
-                <form.Field
-                  name="lastName"
-                  validators={{
-                    onChange: ({ value }) =>
-                      value.trim().length ? "Last Name required" : undefined,
-                  }}
-                >
-                  {(field) => (
-                    <>
-                      <Label htmlFor="lastName">Last name</Label>
-
-                      <Input
-                        id="lastName"
-                        name="lastName"
-                        placeholder="Doe"
-                        value={field.state.value}
-                        onChange={(e) => field.handleChange(e.target.value)}
-                        required
-                      />
-
-                      {field.state.meta.errors.map((error) => (
-                        <p key={error as string}>{error}</p>
-                      ))}
-                    </>
-                  )}
-                </form.Field>
-              </div>
-            </div>
-
-            {/* Age */}
-
-            <div className="space-y-1">
               <form.Field
-                name="age"
-                validators={{
-                  onChange: ({ value }) =>
-                    value < 13
-                      ? "This service is available to people over the age of 13"
-                      : undefined,
-                }}
-              >
-                {(field) => (
-                  <>
-                    <Label htmlFor="age">Age</Label>
-
+                name="firstName"
+                validators={{ onChange: registerSchema.shape.firstName }}
+                children={(field) => (
+                  <div className="w-full space-y-1">
+                    <Label htmlFor={field.name}>First name</Label>
                     <Input
-                      id="age"
-                      name="age"
-                      type="number"
-                      min={0}
-                      placeholder="20"
+                      id={field.name}
+                      name={field.name}
                       value={field.state.value}
-                      onChange={(e) =>
-                        field.handleChange(Number(e.target.value))
-                      }
-                      required
-                    />
-
-                    {field.state.meta.errors.map((error) => (
-                      <p key={error as string}>{error}</p>
-                    ))}
-                  </>
-                )}
-              </form.Field>
-            </div>
-
-            {/* Email */}
-
-            <div className="space-y-1">
-              <form.Field
-                name="email"
-                validators={{
-                  onChange: ({ value }) =>
-                    value.trim().length ? "Email cannot be empty" : undefined,
-                }}
-              >
-                {(field) => (
-                  <>
-                    <Label htmlFor="email">Email address</Label>
-
-                    <Input
-                      id="email"
-                      name="email"
-                      type="email"
-                      placeholder="you@example.com"
-                      value={field.state.value}
+                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      required
                     />
-
-                    {field.state.meta.errors.map((error) => (
-                      <p key={error as string}>{error}</p>
-                    ))}
-                  </>
+                    {field.state.meta.errors ? (
+                      <em role="alert" className="text-red-500 text-xs">
+                        {field.state.meta.errors.at(0)?.message}
+                      </em>
+                    ) : null}
+                  </div>
                 )}
-              </form.Field>
-            </div>
-
-            {/* Password */}
-
-            <div className="space-y-1">
+              />
               <form.Field
-                name="password"
-                validators={{
-                  onChange: ({ value }) =>
-                    value.trim().length < 8
-                      ? "Password must be at least 8 characters"
-                      : undefined,
-                }}
-              >
-                {(field) => (
-                  <>
-                    <Label htmlFor="password">Password</Label>
-
+                name="lastName"
+                validators={{ onChange: registerSchema.shape.lastName }}
+                children={(field) => (
+                  <div className="w-full space-y-1">
+                    <Label htmlFor={field.name}>Last name</Label>
                     <Input
-                      id="password"
-                      name="password"
-                      type="password"
-                      placeholder="••••••••"
+                      id={field.name}
+                      name={field.name}
                       value={field.state.value}
+                      onBlur={field.handleBlur}
                       onChange={(e) => field.handleChange(e.target.value)}
-                      required
                     />
-
-                    {field.state.meta.errors.map((error) => (
-                      <p key={error as string}>{error}</p>
-                    ))}
-                  </>
+                    {field.state.meta.errors ? (
+                      <em role="alert" className="text-red-500 text-xs">
+                        {field.state.meta.errors.at(0)?.message}
+                      </em>
+                    ) : null}
+                  </div>
                 )}
-              </form.Field>
+              />
             </div>
 
-            {/* Checkboxes */}
+            <form.Field
+              name="age"
+              validators={{
+                onChange: ({ value }) => {
+                  const result = registerSchema.shape.age.safeParse(value);
+                  if (!result.success) {
+                    return result.error.issues.at(0)?.message;
+                  }
+                },
+              }}
+              children={(field) => (
+                <div className="space-y-1">
+                  <Label htmlFor={field.name}>Age</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    type="number"
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors ? (
+                    <em role="alert" className="text-red-500 text-xs">
+                      {field.state.meta.errors.at(0)}
+                    </em>
+                  ) : null}
+                </div>
+              )}
+            />
 
-            <div className="space-y-2 pt-1">
-              <div className="flex items-center space-x-2">
-                <Checkbox id="rememberMe" name="rememberMe" />
+            <form.Field
+              name="email"
+              validators={{ onChange: registerSchema.shape.email }}
+              children={(field) => (
+                <div className="space-y-1">
+                  <Label htmlFor={field.name}>Email address</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    type="email"
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors ? (
+                    <em role="alert" className="text-red-500 text-xs">
+                      {field.state.meta.errors.at(0)?.message}
+                    </em>
+                  ) : null}
+                </div>
+              )}
+            />
 
-                <Label htmlFor="rememberMe" className="text-sm text-slate-700">
-                  Remember me
-                </Label>
-              </div>
-
-              <div className="flex items-center space-x-2">
-                <Checkbox id="isAdmin" name="isAdmin" />
-
-                <Label htmlFor="isAdmin" className="text-sm text-slate-700">
-                  Sign up as Admin
-                </Label>
-              </div>
-            </div>
-
-            {/* Submit button */}
-
+            <form.Field
+              name="password"
+              validators={{
+                onChange: registerSchema.shape.password,
+              }}
+              children={(field) => (
+                <div className="space-y-1">
+                  <Label htmlFor={field.name}>Password</Label>
+                  <Input
+                    id={field.name}
+                    name={field.name}
+                    value={field.state.value}
+                    onBlur={field.handleBlur}
+                    type="password"
+                    onChange={(e) => field.handleChange(e.target.value)}
+                  />
+                  {field.state.meta.errors ? (
+                    <em role="alert" className="text-red-500 text-xs">
+                      {field.state.meta.errors.at(0)?.message}
+                    </em>
+                  ) : null}
+                </div>
+              )}
+            />
             <form.Subscribe
-              selector={(formState) => [
-                formState.canSubmit,
-
-                formState.isSubmitting,
-              ]}
-            >
-              {([canSubmit, isSubmitting]) => (
+              selector={(state) => [state.canSubmit, state.isSubmitting]}
+              children={([canSubmit, isSubmitting]) => (
                 <Button
                   type="submit"
                   disabled={!canSubmit}
@@ -353,10 +213,8 @@ function RouteComponent() {
                   {isSubmitting ? "Signing Up..." : "Sign Up"}
                 </Button>
               )}
-            </form.Subscribe>
+            />
           </form>
-
-          {/* Return link */}
 
           <div className="mt-6 text-center">
             <Link
@@ -366,8 +224,6 @@ function RouteComponent() {
               ← Return to Main Page
             </Link>
           </div>
-
-          {/* Year */}
 
           <p className="mt-6 text-center text-xs text-slate-400">2025</p>
         </CardContent>
