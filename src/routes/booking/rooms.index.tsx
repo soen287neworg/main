@@ -1,5 +1,5 @@
 import { Room } from "@/generated/prisma/client";
-import { getPublicRooms } from "@/lib/repositories/RoomRepository";
+import { getPublicRooms } from "@/lib/services/RoomService";
 import { createFileRoute, useNavigate, Link } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { z } from "zod";

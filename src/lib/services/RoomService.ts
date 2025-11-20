@@ -14,3 +14,9 @@ export const getPublicRooms = async (categoryId?: string, search?: string) => {
 
   return rooms;
 };
+
+export const getPublicRoomById = async (roomId: string) => {
+  const room = await RoomRepository.getPublicRoom(roomId);
+
+  return room;
+};

@@ -36,7 +36,6 @@ export async function main() {
       const seeder = await import(pathToFileURL(file).href);
       if (seeder.default && typeof seeder.default.seed === "function") {
         await seeder.default.seed(prisma);
-        console.log(`Finished seeding from ${file}`);
       } else {
         console.warn(
           `Seed file ${file} does not export a default object with a 'seed' function.`

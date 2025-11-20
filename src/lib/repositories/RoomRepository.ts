@@ -1,4 +1,4 @@
-import prisma from "@/lib/utils/prisma";
+import prisma from "@/lib/prisma";
 
 export const getPublicRooms = async (categoryId?: string, search?: string) => {
   return prisma.room.findMany({
@@ -15,4 +15,8 @@ export const getPublicRooms = async (categoryId?: string, search?: string) => {
         : undefined,
     },
   });
+};
+
+export const getPublicRoom = async (roomId: string) => {
+  return prisma.room.findUniqueOrThrow({ where: { id: roomId } });
 };
