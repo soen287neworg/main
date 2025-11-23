@@ -71,7 +71,7 @@ export const handleForm = createServerFn({ method: "POST" })
     }
   });
 
-export const Route = createFileRoute("/user/sign_in/register")({
+export const Route = createFileRoute("/user/auth/register")({
   component: RegisterPage,
 });
 

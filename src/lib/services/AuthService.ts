@@ -36,3 +36,17 @@ export const registerUser = async (
 
       return assignDefaultRoleToUser(user.id, GenericRoles.STUDENT);
     });
+
+export const loginUser = async (
+  email: string,
+  password: string
+): Promise<BetterAuthUser> =>
+  auth.api
+    .signInEmail({
+      body: {
+        email,
+        password,
+        rememberMe: true,
+      },
+    })
+    .then((data) => data.user);

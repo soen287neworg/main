@@ -1,13 +1,9 @@
 import { Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
-import { useEffect } from "react";
+import { Button } from "./ui/button";
 
 export default function Header() {
   const { data } = authClient.useSession();
-
-  useEffect(() => {
-    console.log(data);
-  }, [data]);
 
   return (
     <header className="w-full border-b bg-white sticky top-0 z-50">
@@ -39,26 +35,26 @@ export default function Header() {
         </div>
 
         {/* Right side: auth buttons */}
-        {data?.session ? (
-          <p>Hello</p>
-        ) : (
-          <>
-            <div className="flex items-center gap-2 text-sm">
+        <div className="flex items-center gap-2 text-sm">
+          {data?.session ? (
+            <Button onClick={() => authClient.signOut()}>Logout</Button>
+          ) : (
+            <>
               <Link
-                to="/user/sign_in/user"
+                to="/user/auth/login"
                 className="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-600 hover:bg-amber-50 transition-colors"
               >
                 Sign In
               </Link>
               <Link
-                to="/user/sign_in/register"
+                to="/user/auth/register"
                 className="px-3 py-1.5 rounded-lg bg-amber-400 text-white font-medium hover:bg-amber-500 transition-colors"
               >
                 Sign Up
               </Link>
-            </div>
-          </>
-        )}
+            </>
+          )}
+        </div>
       </nav>
     </header>
   );
