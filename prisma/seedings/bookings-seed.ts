@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@/generated/prisma/client";
 
 export default {
+  name: "bookings",
   seed: async (prisma: PrismaClient) => {
     const users = await prisma.user.findMany();
     const rooms = await prisma.room.findMany();
@@ -38,4 +39,5 @@ export default {
       await prisma.booking.create({ data: booking });
     }
   },
+  dependsOn: ["users", "rooms"],
 };

@@ -12,36 +12,77 @@ const prisma = new PrismaClient({ adapter });
 
 const seedingsDir = path.join(process.cwd(), "prisma", "seedings");
 
-async function readSeedFiles(dir: string): Promise<string[]> {
-  let files: string[] = [];
-  const entries = await fs.readdir(dir, { withFileTypes: true });
+interface Seeder {
+  name: string;
+  seed: (prisma: PrismaClient) => Promise<void>;
+  dependsOn: string[];
+}
 
-  for (const entry of entries) {
-    const fullPath = path.join(dir, entry.name);
-    if (entry.isDirectory()) {
-      files = files.concat(await readSeedFiles(fullPath));
-    } else if (entry.isFile() && entry.name.endsWith("-seed.ts")) {
-      files.push(fullPath);
+async function topologicalSort(
+  seeders: Map<string, Seeder>
+): Promise<Seeder[]> {
+  const sorted: Seeder[] = [];
+  const visited: Set<string> = new Set();
+  const visiting: Set<string> = new Set();
+
+  function visit(seeder: Seeder) {
+    if (visited.has(seeder.name)) {
+      return;
     }
+    if (visiting.has(seeder.name)) {
+      throw new Error(`Circular dependency detected: ${seeder.name}`);
+    }
+
+    visiting.add(seeder.name);
+
+    for (const depName of seeder.dependsOn) {
+      const dep = seeders.get(depName);
+      if (!dep) {
+        throw new Error(
+          `Dependency '${depName}' not found for seeder '${seeder.name}'`
+        );
+      }
+      visit(dep);
+    }
+
+    visiting.delete(seeder.name);
+    visited.add(seeder.name);
+    sorted.push(seeder);
   }
-  return files;
+
+  seeders.forEach(visit);
+
+  return sorted;
 }
 
 export async function main() {
   console.log("Starting seeding process...");
   try {
-    const seedFiles = await readSeedFiles(seedingsDir);
+    const seedFiles = (await fs.readdir(seedingsDir)).filter((file) =>
+      file.endsWith("-seed.ts")
+    );
+    const seeders = new Map<string, Seeder>();
+
     for (const file of seedFiles) {
-      console.log(`Seeding from ${file}...`);
-      const seeder = await import(pathToFileURL(file).href);
-      if (seeder.default && typeof seeder.default.seed === "function") {
-        await seeder.default.seed(prisma);
+      const filePath = path.join(seedingsDir, file);
+      const seederModule = await import(pathToFileURL(filePath).href);
+      const seeder = seederModule.default;
+      if (seeder && typeof seeder.seed === "function") {
+        seeders.set(seeder.name, seeder);
       } else {
         console.warn(
           `Seed file ${file} does not export a default object with a 'seed' function.`
         );
       }
     }
+
+    const sortedSeeders = await topologicalSort(seeders);
+
+    for (const seeder of sortedSeeders) {
+      console.log(`Seeding ${seeder.name}...`);
+      await seeder.seed(prisma);
+    }
+
     console.log("Seeding finished.");
   } catch (error) {
     console.error("Error during seeding:", error);

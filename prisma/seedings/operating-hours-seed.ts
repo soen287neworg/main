@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@/generated/prisma/client";
 
 export default {
+  name: "operating-hours",
   seed: async (prisma: PrismaClient) => {
     const schedules = await prisma.schedule.findMany();
 
@@ -38,4 +39,5 @@ export default {
       await prisma.operatingHours.create({ data: operatingHour });
     }
   },
+  dependsOn: ["schedules"],
 };

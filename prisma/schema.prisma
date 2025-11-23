@@ -99,10 +99,8 @@ model Blackout {
 
 model User {
   id                String    @id @default(uuid())
-  firstName         String
-  lastName          String
   email             String    @unique
-  emailVerified     DateTime?
+  emailVerified     Boolean
   image             String?
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt

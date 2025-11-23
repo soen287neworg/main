@@ -1,14 +1,19 @@
-import { Link } from "@tanstack/react-router"
+import { Link } from "@tanstack/react-router";
+import { authClient } from "@/lib/auth-client";
+import { useEffect } from "react";
 
 export default function Header() {
+  const { data } = authClient.useSession();
+
+  useEffect(() => {
+    console.log(data);
+  }, [data]);
+
   return (
     <header className="w-full border-b bg-white sticky top-0 z-50">
       <nav className="max-w-6xl mx-auto flex items-center justify-between px-4 py-3 sm:px-6 lg:px-8">
         {/* Left: logo / brand */}
-        <Link
-          to="/"
-          className="flex items-center gap-2"
-        >
+        <Link to="/" className="flex items-center gap-2">
           {/* If you want a logo image, replace this text with <img /> */}
           <span className="text-lg font-semibold text-slate-900">
             Campus Booking
@@ -34,21 +39,27 @@ export default function Header() {
         </div>
 
         {/* Right side: auth buttons */}
-        <div className="flex items-center gap-2 text-sm">
-          <Link
-            to="/user/sign_in/user"
-            className="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-600 hover:bg-amber-50 transition-colors"
-          >
-            Sign In
-          </Link>
-          <Link
-            to="/user/sign_in/register"
-            className="px-3 py-1.5 rounded-lg bg-amber-400 text-white font-medium hover:bg-amber-500 transition-colors"
-          >
-            Sign Up
-          </Link>
-        </div>
+        {data?.session ? (
+          <p>Hello</p>
+        ) : (
+          <>
+            <div className="flex items-center gap-2 text-sm">
+              <Link
+                to="/user/sign_in/user"
+                className="px-3 py-1.5 rounded-lg border border-amber-300 text-amber-600 hover:bg-amber-50 transition-colors"
+              >
+                Sign In
+              </Link>
+              <Link
+                to="/user/sign_in/register"
+                className="px-3 py-1.5 rounded-lg bg-amber-400 text-white font-medium hover:bg-amber-500 transition-colors"
+              >
+                Sign Up
+              </Link>
+            </div>
+          </>
+        )}
       </nav>
     </header>
-  )
+  );
 }

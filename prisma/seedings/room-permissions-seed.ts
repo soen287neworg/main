@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@/generated/prisma/client";
 
 export default {
+  name: "room-permissions",
   seed: async (prisma: PrismaClient) => {
     const rooms = await prisma.room.findMany();
     const roles = await prisma.role.findMany();
@@ -12,10 +13,10 @@ export default {
     }
 
     const adminRole = roles.find((role) => role.name === "Admin");
-    const userRole = roles.find((role) => role.name === "User");
+    const userRole = roles.find((role) => role.name === "Student");
 
     if (!adminRole || !userRole) {
-      console.log("Admin or User role not found.");
+      console.log("Admin or Student role not found.");
       return;
     }
 
@@ -44,4 +45,5 @@ export default {
       await prisma.roomPermission.create({ data: permission });
     }
   },
+  dependsOn: ["rooms", "roles", "users"],
 };

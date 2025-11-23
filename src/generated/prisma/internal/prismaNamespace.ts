@@ -1504,8 +1504,6 @@ export type BlackoutScalarFieldEnum = (typeof BlackoutScalarFieldEnum)[keyof typ
 
 export const UserScalarFieldEnum = {
   id: 'id',
-  firstName: 'firstName',
-  lastName: 'lastName',
   email: 'email',
   emailVerified: 'emailVerified',
   image: 'image',

@@ -1,0 +1,23 @@
+import { UserCreateInput, UserUpdateInput } from "@/generated/prisma/models";
+import {
+  createUser as createUserInRepo,
+  findUserByEmail as findUserByEmailInRepo,
+  findUserById as findUserByIdInRepo,
+  updateUser as updateUserInRepo,
+} from "@/lib/repositories/UserRepository";
+
+export const findUserById = (userId: string) => {
+  return findUserByIdInRepo(userId);
+};
+
+export const findUserByEmail = (email: string) => {
+  return findUserByEmailInRepo(email);
+};
+
+export const createUser = (data: UserCreateInput) => {
+  return createUserInRepo(data);
+};
+
+export const updateUser = (userId: string, data: UserUpdateInput) => {
+  return updateUserInRepo(userId, data);
+};

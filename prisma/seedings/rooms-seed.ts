@@ -13,7 +13,9 @@ const data: Prisma.RoomCreateInput[] = [
 ];
 
 export default {
+  name: "rooms",
   seed: async (prisma: PrismaClient) => {
     await prisma.room.createMany({ data });
   },
+  dependsOn: [],
 };

@@ -16,7 +16,9 @@ const data: Prisma.RoomCategoryCreateInput[] = [
 ];
 
 export default {
+  name: "room-categories",
   seed: async (prisma: PrismaClient) => {
     await prisma.roomCategory.createMany({ data });
   },
+  dependsOn: [],
 };

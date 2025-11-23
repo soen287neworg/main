@@ -1,6 +1,7 @@
 import { PrismaClient, Prisma } from "@/generated/prisma/client";
 
 export default {
+  name: "booking-allowances",
   seed: async (prisma: PrismaClient) => {
     const users = await prisma.user.findMany();
 
@@ -37,4 +38,5 @@ export default {
       await prisma.bookingAllowance.create({ data: allowance });
     }
   },
+  dependsOn: ["users"],
 };

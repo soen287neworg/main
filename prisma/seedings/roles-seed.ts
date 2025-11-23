@@ -5,15 +5,17 @@ const data: Prisma.RoleCreateInput[] = [
     name: "Admin",
   },
   {
-    name: "User",
+    name: "Staff",
   },
   {
-    name: "Guest",
+    name: "Student",
   },
 ];
 
 export default {
+  name: "roles",
   seed: async (prisma: PrismaClient) => {
     await prisma.role.createMany({ data });
   },
+  dependsOn: [],
 };
