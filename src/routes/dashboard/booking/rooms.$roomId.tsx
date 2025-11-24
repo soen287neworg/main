@@ -1,10 +1,11 @@
 import { Room } from "@/generated/prisma/client";
 import {
+  bookRoom,
   getAvailabilities,
   getAvailabilitiesForToday,
 } from "@/lib/services/BookingService";
 import { getPublicRoomById } from "@/lib/services/RoomService";
-import { Slot } from "@/lib/types/booking";
+import { Slot, SlotStatus } from "@/lib/types/booking";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { useEffect, useState } from "react";
@@ -15,7 +16,11 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { TimeTable, statusColors } from "@/components/TimeTable";
+import { TimeTable, legendColors } from "@/components/TimeTable";
+import { Spinner } from "@/components/ui/spinner";
+import { toast } from "sonner";
+import { auth } from "@/lib/auth";
+import { getRequestHeaders } from "@tanstack/react-start/server";
 
 export const getRoomDetails = createServerFn({ method: "GET" })
   .inputValidator((data: { roomId: string }) => data)
@@ -33,6 +38,27 @@ export const getRoomAvailabilities = createServerFn({ method: "POST" })
   .handler(async ({ data }) => {
     const availabilities = await getAvailabilities(data.roomId, data.date);
     return availabilities;
+  });
+
+export const bookRoomForUser = createServerFn({ method: "POST" })
+  .inputValidator(
+    (data: { roomId: string; startTime: Date; endTime: Date }) => data
+  )
+  .handler(async ({ data }) => {
+    const headers = getRequestHeaders();
+    const user = await auth.api.getSession({ headers });
+
+    if (!user?.user.id) {
+      throw "Invalid user id";
+    }
+
+    const booking = await bookRoom(
+      user?.user.id,
+      data.roomId,
+      data.startTime,
+      data.endTime
+    );
+    return booking;
   });
 
 export const Route = createFileRoute("/dashboard/booking/rooms/$roomId")({
@@ -54,11 +80,39 @@ function RouteComponent() {
   const [selectedAvailability, setSelectedAvailability] = useState<Slot | null>(
     null
   );
+  const [isBooking, setIsBooking] = useState(false);
 
   useEffect(() => {
     setSelectedAvailability(null);
     console.log(selectedAvailability);
   }, [isLoading]);
+
+  const handleBooking = async () => {
+    if (!selectedAvailability) return;
+
+    setIsBooking(true);
+    const promise = bookRoomForUser({
+      data: {
+        roomId,
+        startTime: selectedAvailability.startTime,
+        endTime: selectedAvailability.endTime,
+      },
+    });
+
+    toast.promise(promise, {
+      loading: "Booking your room...",
+      success: () => {
+        handleDateSelect(date); // Refresh availabilities
+        return "Room booked successfully!";
+      },
+      error: (err) => {
+        return err.message || "Failed to book room.";
+      },
+      finally: () => {
+        setIsBooking(false);
+      },
+    });
+  };
 
   const handleDateSelect = async (selectedDate: Date | undefined) => {
     if (!selectedDate) return;
@@ -171,18 +225,43 @@ function RouteComponent() {
                   {!selectedAvailability ? null : (
                     <div className="mt-8 p-4 border rounded-lg">
                       <h4 className="text-lg font-semibold mb-2">Booking:</h4>
-                      <div className="flex flex-wrap gap-4">
+                      <div className="flex flex-wrap flex-col gap-4">
                         <div className="flex items-center gap-2">
+                          <p>
+                            Slot selected:{" "}
+                            {selectedAvailability.startTime.toLocaleDateString()}
+                          </p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {selectedAvailability.startTime.toLocaleTimeString()}{" "}
+                          - {selectedAvailability.endTime.toLocaleTimeString()}
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <p>Status:</p>
                           <span
-                            className={`w-4 h-4 bg-${
-                              statusColors[selectedAvailability?.status]
-                            }-200 rounded-full`}
+                            className={
+                              legendColors[selectedAvailability?.status]
+                            }
                           ></span>
-                          <p>Slot selected:</p>
+                          {selectedAvailability.status}
                         </div>
-                        <div className="flex items-center gap-2">
-                          {/* {selectedAvailability.} */}
-                        </div>
+                        {selectedAvailability.status ==
+                          SlotStatus.UNAVAILABLE && (
+                          <div className="flex items-center gap-2">
+                            <p>Reason:</p>
+                            <p>{selectedAvailability.reason}</p>
+                          </div>
+                        )}
+                        <Button
+                          onClick={handleBooking}
+                          disabled={
+                            selectedAvailability.status !=
+                              SlotStatus.AVAILABLE || isBooking
+                          }
+                        >
+                          {isBooking && <Spinner />}
+                          Book now
+                        </Button>
                       </div>
                     </div>
                   )}

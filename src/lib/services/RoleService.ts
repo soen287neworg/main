@@ -2,7 +2,13 @@ import { User } from "@/generated/prisma/client";
 import {
   findRoleByName,
   connectRoleToUser,
+  findAllRoles as findAllRolesInRepo,
+  disconnectRoleFromUser as disconnectRoleFromUserInRepo,
 } from "../repositories/RoleRepository";
+
+export const findAllRoles = () => {
+  return findAllRolesInRepo();
+};
 
 /**
  * Assigns the default role to a user.
@@ -21,3 +27,11 @@ export const assignDefaultRoleToUser = async (
 
     return connectRoleToUser(userId, role.id);
   });
+
+export const addRoleToUser = async (userId: string, roleId: string) => {
+  return connectRoleToUser(userId, roleId);
+};
+
+export const removeRoleFromUser = async (userId: string, roleId: string) => {
+  return disconnectRoleFromUserInRepo(userId, roleId);
+};

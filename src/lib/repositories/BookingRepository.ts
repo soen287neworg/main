@@ -18,6 +18,22 @@ export const getBookingsForRoomBetweenPeriod = async (
   });
 };
 
+export const createBooking = async (
+  userId: string,
+  roomId: string,
+  startTime: Date,
+  endTime: Date
+) => {
+  return prisma.booking.create({
+    data: {
+      userId,
+      roomId,
+      startTime,
+      endTime,
+    },
+  });
+};
+
 export const getAllBookings = async () => {
   return prisma.booking.findMany();
 };

@@ -5,9 +5,34 @@ import {
   Blackout,
   BookingStatus,
   Booking,
+  Room,
 } from "@/generated/prisma/client";
-import { add, set } from "date-fns";
+import { add, set, startOfDay } from "date-fns";
 import { Slot, SlotStatus } from "@/lib/types/booking";
+
+export const bookRoom = async (
+  userId: string,
+  roomId: string,
+  startTime: Date,
+  endTime: Date
+) => {
+  const availabilities = await getAvailabilities(roomId, startTime);
+  const targetSlot = availabilities.find(
+    (slot) =>
+      slot.startTime.getTime() === startTime.getTime() &&
+      slot.endTime.getTime() === endTime.getTime()
+  );
+
+  if (!targetSlot) {
+    throw new Error("The selected slot does not exist.");
+  }
+
+  if (targetSlot.status !== SlotStatus.AVAILABLE) {
+    throw new Error("The selected slot is not available.");
+  }
+
+  return BookingRepository.createBooking(userId, roomId, startTime, endTime);
+};
 
 export const getAvailabilitiesForToday = async (roomId: string) => {
   const availabilities = await getAvailabilities(roomId, new Date());
@@ -63,17 +88,19 @@ export const getAvailabilities = async (roomId: string, date: Date) => {
       (booking) =>
         currentTime < booking.endTime && slotEndTime > booking.startTime
     );
-    const isBlackout = schedule?.blackouts.some(
+    const blackout = schedule?.blackouts.find(
       (blackout: Blackout) =>
         currentTime < blackout.endTime && slotEndTime > blackout.startTime
     );
 
     let status: SlotStatus = SlotStatus.AVAILABLE;
+    let reason: string | null = null;
 
     if (isBooked) {
       status = SlotStatus.BOOKED;
-    } else if (isBlackout) {
+    } else if (blackout) {
       status = SlotStatus.UNAVAILABLE;
+      reason = blackout.reason;
     } else if (currentTime.getTime() < new Date().getTime()) {
       status = SlotStatus.CLOSED;
     }
@@ -82,6 +109,7 @@ export const getAvailabilities = async (roomId: string, date: Date) => {
       startTime: currentTime,
       endTime: slotEndTime,
       status: status,
+      reason,
     });
     currentTime = slotEndTime;
   }
@@ -120,8 +148,6 @@ export const getUserBookings = async (userId: string) => {
 };
 
 import * as RoomRepository from "@/lib/repositories/RoomRepository";
-import { startOfDay } from "date-fns";
-import { Room, Booking } from "@/generated/prisma/client";
 
 export const getDashboardAnalytics = async () => {
   const rooms = await RoomRepository.getPublicRooms();

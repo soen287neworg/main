@@ -14,6 +14,13 @@ export const statusColors = {
   UNAVAILABLE: "bg-yellow-300 text-yellow-600",
 };
 
+export const legendColors = {
+  AVAILABLE: "w-4 h-4 bg-green-200 rounded-full",
+  CLOSED: "w-4 h-4 bg-gray-300 rounded-full",
+  BOOKED: "w-4 h-4 bg-red-300 rounded-full",
+  UNAVAILABLE: "w-4 h-4 bg-yellow-300 rounded-full",
+};
+
 export function TimeTable({ slots, selectHook }: TimeTableProps) {
   if (slots.length === 0) {
     return (

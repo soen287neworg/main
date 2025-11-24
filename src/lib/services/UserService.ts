@@ -5,6 +5,7 @@ import {
   findUserById as findUserByIdInRepo,
   updateUser as updateUserInRepo,
   findAllUsers as findAllUsersInRepo,
+  deleteUser as deleteUserInRepo,
 } from "@/lib/repositories/UserRepository";
 
 export const findUserById = (userId: string) => {
@@ -25,4 +26,8 @@ export const createUser = (data: UserCreateInput) => {
 
 export const updateUser = (userId: string, data: UserUpdateInput) => {
   return updateUserInRepo(userId, data);
+};
+
+export const deleteUser = (userId: string) => {
+  return deleteUserInRepo(userId);
 };

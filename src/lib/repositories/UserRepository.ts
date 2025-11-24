@@ -16,6 +16,10 @@ export const findAllUsers = async () => {
   });
 };
 
+export const deleteUser = async (userId: string) => {
+  return prisma.user.delete({ where: { id: userId } });
+};
+
 export const createUser = async (data: UserCreateInput) => {
   return prisma.user.create({ data });
 };
