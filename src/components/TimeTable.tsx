@@ -1,18 +1,20 @@
 import { Slot } from "@/lib/types/booking";
 import { format } from "date-fns";
+import { Dispatch, SetStateAction } from "react";
 
 interface TimeTableProps {
   slots: Slot[];
+  selectHook: Dispatch<SetStateAction<Slot | null>>;
 }
 
-const statusColors = {
+export const statusColors = {
   AVAILABLE: "bg-green-200 hover:bg-green-300 cursor-pointer",
   CLOSED: "bg-gray-300 text-gray-500",
   BOOKED: "bg-red-300 text-red-600",
   UNAVAILABLE: "bg-yellow-300 text-yellow-600",
 };
 
-export function TimeTable({ slots }: TimeTableProps) {
+export function TimeTable({ slots, selectHook }: TimeTableProps) {
   if (slots.length === 0) {
     return (
       <p className="text-center text-gray-500">
@@ -36,6 +38,7 @@ export function TimeTable({ slots }: TimeTableProps) {
             <div
               key={index}
               className={`p-2 border rounded-lg flex justify-center items-center text-center ${color}`}
+              onClick={() => selectHook(slot)}
             >
               <span className="font-medium">{time}</span>
             </div>

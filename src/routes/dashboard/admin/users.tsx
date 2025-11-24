@@ -113,7 +113,7 @@ function UsersPage() {
               className={`cursor-pointer ${selectedUser?.id === user.id ? "bg-muted" : ""}`}
               onClick={() => setSelectedUser(user)}
             >
-              <CardHeader className="flex flex-row items-center gap-2 p-3">
+              <CardHeader className="flex flex-row items-center gap-3 p-2">
                 <Avatar>
                   <AvatarImage src={user.image ?? undefined} />
                   <AvatarFallback>

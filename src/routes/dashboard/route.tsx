@@ -3,16 +3,14 @@ import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
 import { getSessionFn } from "@/lib/controllers/AuthController";
 import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
-import { AuthContext } from "better-auth";
 import {
   BookOpen,
-  Bot,
   FlagIcon,
   PieChart,
   Settings2,
+  Tag,
   User,
 } from "lucide-react";
-import { useEffect } from "react";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
@@ -78,8 +76,13 @@ const data = {
     },
     {
       name: "Resources",
-      url: "#",
+      url: "/dashboard/admin/resources",
       icon: BookOpen,
+    },
+    {
+      name: "Categories",
+      url: "/dashboard/admin/categories",
+      icon: Tag,
     },
   ],
 };

@@ -7,7 +7,7 @@ import { getPublicRoomById } from "@/lib/services/RoomService";
 import { Slot } from "@/lib/types/booking";
 import { createFileRoute } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Calendar } from "@/components/ui/calendar";
 import {
   Popover,
@@ -15,7 +15,7 @@ import {
   PopoverTrigger,
 } from "@/components/ui/popover";
 import { Button } from "@/components/ui/button";
-import { TimeTable } from "@/components/TimeTable";
+import { TimeTable, statusColors } from "@/components/TimeTable";
 
 export const getRoomDetails = createServerFn({ method: "GET" })
   .inputValidator((data: { roomId: string }) => data)
@@ -51,6 +51,14 @@ function RouteComponent() {
     initialAvailabilities
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [selectedAvailability, setSelectedAvailability] = useState<Slot | null>(
+    null
+  );
+
+  useEffect(() => {
+    setSelectedAvailability(null);
+    console.log(selectedAvailability);
+  }, [isLoading]);
 
   const handleDateSelect = async (selectedDate: Date | undefined) => {
     if (!selectedDate) return;
@@ -155,7 +163,30 @@ function RouteComponent() {
               {isLoading ? (
                 <p>Loading...</p>
               ) : (
-                <TimeTable slots={availabilities} />
+                <>
+                  <TimeTable
+                    slots={availabilities}
+                    selectHook={setSelectedAvailability}
+                  />
+                  {!selectedAvailability ? null : (
+                    <div className="mt-8 p-4 border rounded-lg">
+                      <h4 className="text-lg font-semibold mb-2">Booking:</h4>
+                      <div className="flex flex-wrap gap-4">
+                        <div className="flex items-center gap-2">
+                          <span
+                            className={`w-4 h-4 bg-${
+                              statusColors[selectedAvailability?.status]
+                            }-200 rounded-full`}
+                          ></span>
+                          <p>Slot selected:</p>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          {/* {selectedAvailability.} */}
+                        </div>
+                      </div>
+                    </div>
+                  )}
+                </>
               )}
             </div>
           </div>
