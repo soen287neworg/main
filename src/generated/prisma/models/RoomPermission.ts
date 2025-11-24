@@ -276,7 +276,7 @@ export type RoomPermissionCreateInput = {
   id?: string
   permissions?: number
   room: Prisma.RoomCreateNestedOneWithoutPermissionsInput
-  role?: Prisma.RoleCreateNestedOneWithoutPermissionsInput
+  role?: Prisma.RoleCreateNestedOneWithoutRoomPermissionsInput
   user?: Prisma.UserCreateNestedOneWithoutRoomPermissionsInput
 }
 
@@ -292,7 +292,7 @@ export type RoomPermissionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.IntFieldUpdateOperationsInput | number
   room?: Prisma.RoomUpdateOneRequiredWithoutPermissionsNestedInput
-  role?: Prisma.RoleUpdateOneWithoutPermissionsNestedInput
+  role?: Prisma.RoleUpdateOneWithoutRoomPermissionsNestedInput
   user?: Prisma.UserUpdateOneWithoutRoomPermissionsNestedInput
 }
 
@@ -506,7 +506,7 @@ export type RoomPermissionUncheckedUpdateManyWithoutRoleNestedInput = {
 export type RoomPermissionCreateWithoutRoomInput = {
   id?: string
   permissions?: number
-  role?: Prisma.RoleCreateNestedOneWithoutPermissionsInput
+  role?: Prisma.RoleCreateNestedOneWithoutRoomPermissionsInput
   user?: Prisma.UserCreateNestedOneWithoutRoomPermissionsInput
 }
 
@@ -558,7 +558,7 @@ export type RoomPermissionCreateWithoutUserInput = {
   id?: string
   permissions?: number
   room: Prisma.RoomCreateNestedOneWithoutPermissionsInput
-  role?: Prisma.RoleCreateNestedOneWithoutPermissionsInput
+  role?: Prisma.RoleCreateNestedOneWithoutRoomPermissionsInput
 }
 
 export type RoomPermissionUncheckedCreateWithoutUserInput = {
@@ -644,7 +644,7 @@ export type RoomPermissionCreateManyRoomInput = {
 export type RoomPermissionUpdateWithoutRoomInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.IntFieldUpdateOperationsInput | number
-  role?: Prisma.RoleUpdateOneWithoutPermissionsNestedInput
+  role?: Prisma.RoleUpdateOneWithoutRoomPermissionsNestedInput
   user?: Prisma.UserUpdateOneWithoutRoomPermissionsNestedInput
 }
 
@@ -673,7 +673,7 @@ export type RoomPermissionUpdateWithoutUserInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   permissions?: Prisma.IntFieldUpdateOperationsInput | number
   room?: Prisma.RoomUpdateOneRequiredWithoutPermissionsNestedInput
-  role?: Prisma.RoleUpdateOneWithoutPermissionsNestedInput
+  role?: Prisma.RoleUpdateOneWithoutRoomPermissionsNestedInput
 }
 
 export type RoomPermissionUncheckedUpdateWithoutUserInput = {

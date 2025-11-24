@@ -59,6 +59,7 @@ export const ModelName = {
   Blackout: 'Blackout',
   User: 'User',
   Role: 'Role',
+  SystemPermission: 'SystemPermission',
   RoomPermission: 'RoomPermission',
   BookingAllowance: 'BookingAllowance',
   Session: 'Session',
@@ -186,6 +187,16 @@ export const RoleScalarFieldEnum = {
 } as const
 
 export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
+
+
+export const SystemPermissionScalarFieldEnum = {
+  id: 'id',
+  roleId: 'roleId',
+  userId: 'userId',
+  permission: 'permission'
+} as const
+
+export type SystemPermissionScalarFieldEnum = (typeof SystemPermissionScalarFieldEnum)[keyof typeof SystemPermissionScalarFieldEnum]
 
 
 export const RoomPermissionScalarFieldEnum = {

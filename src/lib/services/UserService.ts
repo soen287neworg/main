@@ -4,6 +4,7 @@ import {
   findUserByEmail as findUserByEmailInRepo,
   findUserById as findUserByIdInRepo,
   updateUser as updateUserInRepo,
+  findAllUsers as findAllUsersInRepo,
 } from "@/lib/repositories/UserRepository";
 
 export const findUserById = (userId: string) => {
@@ -12,6 +13,10 @@ export const findUserById = (userId: string) => {
 
 export const findUserByEmail = (email: string) => {
   return findUserByEmailInRepo(email);
+};
+
+export const findAllUsers = () => {
+  return findAllUsersInRepo();
 };
 
 export const createUser = (data: UserCreateInput) => {

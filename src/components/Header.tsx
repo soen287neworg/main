@@ -1,9 +1,11 @@
 import { Link } from "@tanstack/react-router";
 import { authClient } from "@/lib/auth-client";
 import { Button } from "./ui/button";
+import { toast } from "sonner";
+import { LogOut } from "lucide-react";
 
 export default function Header() {
-  const { data } = authClient.useSession();
+  const { data, isPending } = authClient.useSession();
 
   return (
     <header className="w-full border-b bg-white sticky top-0 z-50">
@@ -26,7 +28,7 @@ export default function Header() {
             Main
           </Link>
           <Link
-            to="/resources"
+            to="/booking/rooms"
             className="hover:text-slate-900"
             activeProps={{ className: "font-semibold text-slate-900" }}
           >
@@ -36,8 +38,18 @@ export default function Header() {
 
         {/* Right side: auth buttons */}
         <div className="flex items-center gap-2 text-sm">
-          {data?.session ? (
-            <Button onClick={() => authClient.signOut()}>Logout</Button>
+          {isPending ? null : data?.session ? (
+            <Button
+              onClick={() =>
+                toast.promise(authClient.signOut(), {
+                  loading: "Loading...",
+                  success: "Signed out",
+                })
+              }
+            >
+              <LogOut />
+              Logout
+            </Button>
           ) : (
             <>
               <Link

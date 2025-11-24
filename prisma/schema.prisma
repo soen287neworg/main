@@ -111,6 +111,7 @@ model User {
   bookingAllowance  BookingAllowance[] @relation("UserToBookingAllowance")
   roles             Role[]    @relation("UserRoles")
   roomPermissions   RoomPermission[] @relation("UserToRoomPermission")
+  systemPermissions SystemPermission[] @relation("UserToSystemPermission")
 
   @@map("user")
 }
@@ -119,7 +120,19 @@ model Role {
   id          String    @id @default(uuid())
   name        String    @unique
   users       User[]    @relation("UserRoles")
-  permissions RoomPermission[] @relation("RoleToRoomPermission")
+  roomPermissions RoomPermission[] @relation("RoleToRoomPermission")
+  systemPermissions SystemPermission[] @relation("RoleToSystemPermission")
+}
+
+model SystemPermission {
+  id          String @id @default(uuid())
+  roleId      String?
+  userId      String?
+
+  permission Int  @default(1)
+  
+  user User? @relation("UserToSystemPermission", fields: [userId], references: [id])
+  role Role? @relation("RoleToSystemPermission", fields: [roleId], references: [id])
 }
 
 model RoomPermission {

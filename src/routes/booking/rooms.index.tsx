@@ -28,7 +28,7 @@ export const Route = createFileRoute("/booking/rooms/")({
     getRooms({ data: { categoryId, search } }),
 });
 
-function RoomsList() {
+export function RoomsList() {
   const navigate = useNavigate({ from: Route.fullPath });
   const { categoryId, search } = Route.useSearch();
   const rooms: Room[] = Route.useLoaderData() || [];

@@ -17,7 +17,7 @@ import { useEffect } from "react";
 
 const loginSchema = z.object({
   email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  password: z.string(),
 });
 
 export const handleForm = createServerFn({ method: "POST" })
@@ -94,8 +94,8 @@ function LoginPage() {
       toast.promise(handleForm({ data: formData }), {
         loading: "Loading...",
         success: (data) => {
-          navigate({ to: "/", reloadDocument: true });
-          return `User ${data.user && "with email "}${data.user?.email} successfully signed in!`;
+          navigate({ to: "/dashboard", reloadDocument: true });
+          return `Login successful!`;
         },
         error: (error) => {
           var errorMessage: string = "Sign in failed. Please try again.";
@@ -174,9 +174,6 @@ function LoginPage() {
 
             <form.Field
               name="password"
-              validators={{
-                onChange: loginSchema.shape.password,
-              }}
               children={(field) => (
                 <div className="space-y-1">
                   <Label htmlFor={field.name}>Password</Label>
@@ -188,11 +185,6 @@ function LoginPage() {
                     type="password"
                     onChange={(e) => field.handleChange(e.target.value)}
                   />
-                  {field.state.meta.errors ? (
-                    <em role="alert" className="text-red-500 text-xs">
-                      {field.state.meta.errors.at(0)?.message}
-                    </em>
-                  ) : null}
                 </div>
               )}
             />

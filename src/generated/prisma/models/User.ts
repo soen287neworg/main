@@ -204,6 +204,7 @@ export type UserWhereInput = {
   bookingAllowance?: Prisma.BookingAllowanceListRelationFilter
   roles?: Prisma.RoleListRelationFilter
   roomPermissions?: Prisma.RoomPermissionListRelationFilter
+  systemPermissions?: Prisma.SystemPermissionListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -220,6 +221,7 @@ export type UserOrderByWithRelationInput = {
   bookingAllowance?: Prisma.BookingAllowanceOrderByRelationAggregateInput
   roles?: Prisma.RoleOrderByRelationAggregateInput
   roomPermissions?: Prisma.RoomPermissionOrderByRelationAggregateInput
+  systemPermissions?: Prisma.SystemPermissionOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -239,6 +241,7 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   bookingAllowance?: Prisma.BookingAllowanceListRelationFilter
   roles?: Prisma.RoleListRelationFilter
   roomPermissions?: Prisma.RoomPermissionListRelationFilter
+  systemPermissions?: Prisma.SystemPermissionListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -281,6 +284,7 @@ export type UserCreateInput = {
   bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -297,6 +301,7 @@ export type UserUncheckedCreateInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserUpdateInput = {
@@ -313,6 +318,7 @@ export type UserUpdateInput = {
   bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -329,6 +335,7 @@ export type UserUncheckedUpdateInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -463,6 +470,22 @@ export type UserUncheckedUpdateManyWithoutRolesNestedInput = {
   deleteMany?: Prisma.UserScalarWhereInput | Prisma.UserScalarWhereInput[]
 }
 
+export type UserCreateNestedOneWithoutSystemPermissionsInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSystemPermissionsInput, Prisma.UserUncheckedCreateWithoutSystemPermissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSystemPermissionsInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutSystemPermissionsNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutSystemPermissionsInput, Prisma.UserUncheckedCreateWithoutSystemPermissionsInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutSystemPermissionsInput
+  upsert?: Prisma.UserUpsertWithoutSystemPermissionsInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutSystemPermissionsInput, Prisma.UserUpdateWithoutSystemPermissionsInput>, Prisma.UserUncheckedUpdateWithoutSystemPermissionsInput>
+}
+
 export type UserCreateNestedOneWithoutRoomPermissionsInput = {
   create?: Prisma.XOR<Prisma.UserCreateWithoutRoomPermissionsInput, Prisma.UserUncheckedCreateWithoutRoomPermissionsInput>
   connectOrCreate?: Prisma.UserCreateOrConnectWithoutRoomPermissionsInput
@@ -534,6 +557,7 @@ export type UserCreateWithoutBookingsInput = {
   bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBookingsInput = {
@@ -549,6 +573,7 @@ export type UserUncheckedCreateWithoutBookingsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBookingsInput = {
@@ -580,6 +605,7 @@ export type UserUpdateWithoutBookingsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBookingsInput = {
@@ -595,6 +621,7 @@ export type UserUncheckedUpdateWithoutBookingsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutRolesInput = {
@@ -610,6 +637,7 @@ export type UserCreateWithoutRolesInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
   roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRolesInput = {
@@ -625,6 +653,7 @@ export type UserUncheckedCreateWithoutRolesInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
   roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRolesInput = {
@@ -661,6 +690,86 @@ export type UserScalarWhereInput = {
   name?: Prisma.StringFilter<"User"> | string
 }
 
+export type UserCreateWithoutSystemPermissionsInput = {
+  id?: string
+  email: string
+  emailVerified: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  name: string
+  bookings?: Prisma.BookingCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
+  bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
+  roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
+  roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+}
+
+export type UserUncheckedCreateWithoutSystemPermissionsInput = {
+  id?: string
+  email: string
+  emailVerified: boolean
+  image?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  name: string
+  bookings?: Prisma.BookingUncheckedCreateNestedManyWithoutUserInput
+  sessions?: Prisma.SessionUncheckedCreateNestedManyWithoutUserInput
+  accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
+  bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
+  roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
+  roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+}
+
+export type UserCreateOrConnectWithoutSystemPermissionsInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutSystemPermissionsInput, Prisma.UserUncheckedCreateWithoutSystemPermissionsInput>
+}
+
+export type UserUpsertWithoutSystemPermissionsInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutSystemPermissionsInput, Prisma.UserUncheckedUpdateWithoutSystemPermissionsInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutSystemPermissionsInput, Prisma.UserUncheckedCreateWithoutSystemPermissionsInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutSystemPermissionsInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutSystemPermissionsInput, Prisma.UserUncheckedUpdateWithoutSystemPermissionsInput>
+}
+
+export type UserUpdateWithoutSystemPermissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  bookings?: Prisma.BookingUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
+  bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
+  roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
+  roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+}
+
+export type UserUncheckedUpdateWithoutSystemPermissionsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  emailVerified?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  image?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  bookings?: Prisma.BookingUncheckedUpdateManyWithoutUserNestedInput
+  sessions?: Prisma.SessionUncheckedUpdateManyWithoutUserNestedInput
+  accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
+  bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
+  roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
+  roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+}
+
 export type UserCreateWithoutRoomPermissionsInput = {
   id?: string
   email: string
@@ -674,6 +783,7 @@ export type UserCreateWithoutRoomPermissionsInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutRoomPermissionsInput = {
@@ -689,6 +799,7 @@ export type UserUncheckedCreateWithoutRoomPermissionsInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutRoomPermissionsInput = {
@@ -720,6 +831,7 @@ export type UserUpdateWithoutRoomPermissionsInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRoomPermissionsInput = {
@@ -735,6 +847,7 @@ export type UserUncheckedUpdateWithoutRoomPermissionsInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutBookingAllowanceInput = {
@@ -750,6 +863,7 @@ export type UserCreateWithoutBookingAllowanceInput = {
   accounts?: Prisma.AccountCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutBookingAllowanceInput = {
@@ -765,6 +879,7 @@ export type UserUncheckedCreateWithoutBookingAllowanceInput = {
   accounts?: Prisma.AccountUncheckedCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutBookingAllowanceInput = {
@@ -796,6 +911,7 @@ export type UserUpdateWithoutBookingAllowanceInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutBookingAllowanceInput = {
@@ -811,6 +927,7 @@ export type UserUncheckedUpdateWithoutBookingAllowanceInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutSessionsInput = {
@@ -826,6 +943,7 @@ export type UserCreateWithoutSessionsInput = {
   bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutSessionsInput = {
@@ -841,6 +959,7 @@ export type UserUncheckedCreateWithoutSessionsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutSessionsInput = {
@@ -872,6 +991,7 @@ export type UserUpdateWithoutSessionsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutSessionsInput = {
@@ -887,6 +1007,7 @@ export type UserUncheckedUpdateWithoutSessionsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserCreateWithoutAccountsInput = {
@@ -902,6 +1023,7 @@ export type UserCreateWithoutAccountsInput = {
   bookingAllowance?: Prisma.BookingAllowanceCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionCreateNestedManyWithoutUserInput
 }
 
 export type UserUncheckedCreateWithoutAccountsInput = {
@@ -917,6 +1039,7 @@ export type UserUncheckedCreateWithoutAccountsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedCreateNestedManyWithoutUserInput
   roles?: Prisma.RoleUncheckedCreateNestedManyWithoutUsersInput
   roomPermissions?: Prisma.RoomPermissionUncheckedCreateNestedManyWithoutUserInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedCreateNestedManyWithoutUserInput
 }
 
 export type UserCreateOrConnectWithoutAccountsInput = {
@@ -948,6 +1071,7 @@ export type UserUpdateWithoutAccountsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutAccountsInput = {
@@ -963,6 +1087,7 @@ export type UserUncheckedUpdateWithoutAccountsInput = {
   bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
   roles?: Prisma.RoleUncheckedUpdateManyWithoutUsersNestedInput
   roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUpdateWithoutRolesInput = {
@@ -978,6 +1103,7 @@ export type UserUpdateWithoutRolesInput = {
   accounts?: Prisma.AccountUpdateManyWithoutUserNestedInput
   bookingAllowance?: Prisma.BookingAllowanceUpdateManyWithoutUserNestedInput
   roomPermissions?: Prisma.RoomPermissionUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateWithoutRolesInput = {
@@ -993,6 +1119,7 @@ export type UserUncheckedUpdateWithoutRolesInput = {
   accounts?: Prisma.AccountUncheckedUpdateManyWithoutUserNestedInput
   bookingAllowance?: Prisma.BookingAllowanceUncheckedUpdateManyWithoutUserNestedInput
   roomPermissions?: Prisma.RoomPermissionUncheckedUpdateManyWithoutUserNestedInput
+  systemPermissions?: Prisma.SystemPermissionUncheckedUpdateManyWithoutUserNestedInput
 }
 
 export type UserUncheckedUpdateManyWithoutRolesInput = {
@@ -1017,6 +1144,7 @@ export type UserCountOutputType = {
   bookingAllowance: number
   roles: number
   roomPermissions: number
+  systemPermissions: number
 }
 
 export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1026,6 +1154,7 @@ export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.I
   bookingAllowance?: boolean | UserCountOutputTypeCountBookingAllowanceArgs
   roles?: boolean | UserCountOutputTypeCountRolesArgs
   roomPermissions?: boolean | UserCountOutputTypeCountRoomPermissionsArgs
+  systemPermissions?: boolean | UserCountOutputTypeCountSystemPermissionsArgs
 }
 
 /**
@@ -1080,6 +1209,13 @@ export type UserCountOutputTypeCountRoomPermissionsArgs<ExtArgs extends runtime.
   where?: Prisma.RoomPermissionWhereInput
 }
 
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountSystemPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.SystemPermissionWhereInput
+}
+
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -1095,6 +1231,7 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   bookingAllowance?: boolean | Prisma.User$bookingAllowanceArgs<ExtArgs>
   roles?: boolean | Prisma.User$rolesArgs<ExtArgs>
   roomPermissions?: boolean | Prisma.User$roomPermissionsArgs<ExtArgs>
+  systemPermissions?: boolean | Prisma.User$systemPermissionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
@@ -1136,6 +1273,7 @@ export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = 
   bookingAllowance?: boolean | Prisma.User$bookingAllowanceArgs<ExtArgs>
   roles?: boolean | Prisma.User$rolesArgs<ExtArgs>
   roomPermissions?: boolean | Prisma.User$roomPermissionsArgs<ExtArgs>
+  systemPermissions?: boolean | Prisma.User$systemPermissionsArgs<ExtArgs>
   _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -1150,6 +1288,7 @@ export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs =
     bookingAllowance: Prisma.$BookingAllowancePayload<ExtArgs>[]
     roles: Prisma.$RolePayload<ExtArgs>[]
     roomPermissions: Prisma.$RoomPermissionPayload<ExtArgs>[]
+    systemPermissions: Prisma.$SystemPermissionPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1559,6 +1698,7 @@ export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Typ
   bookingAllowance<T extends Prisma.User$bookingAllowanceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$bookingAllowanceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BookingAllowancePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roles<T extends Prisma.User$rolesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$rolesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RolePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   roomPermissions<T extends Prisma.User$roomPermissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$roomPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$RoomPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  systemPermissions<T extends Prisma.User$systemPermissionsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$systemPermissionsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$SystemPermissionPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2124,6 +2264,30 @@ export type User$roomPermissionsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.RoomPermissionScalarFieldEnum | Prisma.RoomPermissionScalarFieldEnum[]
+}
+
+/**
+ * User.systemPermissions
+ */
+export type User$systemPermissionsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the SystemPermission
+   */
+  select?: Prisma.SystemPermissionSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the SystemPermission
+   */
+  omit?: Prisma.SystemPermissionOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.SystemPermissionInclude<ExtArgs> | null
+  where?: Prisma.SystemPermissionWhereInput
+  orderBy?: Prisma.SystemPermissionOrderByWithRelationInput | Prisma.SystemPermissionOrderByWithRelationInput[]
+  cursor?: Prisma.SystemPermissionWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.SystemPermissionScalarFieldEnum | Prisma.SystemPermissionScalarFieldEnum[]
 }
 
 /**

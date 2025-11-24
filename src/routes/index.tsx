@@ -1,5 +1,5 @@
 import * as React from "react";
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
@@ -9,6 +9,8 @@ import {
   HoverCardContent,
 } from "@/components/ui/hover-card";
 import { Input } from "@/components/ui/input";
+import { authClient } from "@/lib/auth-client";
+import { toast } from "sonner";
 
 export const Route = createFileRoute("/")({
   component: LandingPage,
@@ -63,6 +65,16 @@ const features = [
 ];
 
 function LandingPage() {
+  const { data } = authClient.useSession();
+  const navigate = useNavigate();
+
+  React.useEffect(() => {
+    if (data?.session) {
+      toast.info("Redirecting to dashboard..");
+      navigate({ to: "/dashboard", reloadDocument: true });
+    }
+  }, [data]);
+
   return (
     <div className=" min-h-screen bg-slate-50 flex flex-col">
       {/* Hero Section */}
@@ -114,6 +126,14 @@ function LandingPage() {
                     </HoverCardContent>
                   </HoverCard>
                 ))}
+              </div>
+              <div className="flex flex-row items-center justify-start gap-4 mt-7">
+                <Button className="w-1/3" asChild>
+                  <Link to="/user/auth/login">Sign-In</Link>
+                </Button>
+                <Button className="w-1/3" variant="outline" asChild>
+                  <Link to="/user/auth/register">Register</Link>
+                </Button>
               </div>
             </div>
 

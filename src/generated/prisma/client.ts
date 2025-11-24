@@ -80,6 +80,11 @@ export type User = Prisma.UserModel
  */
 export type Role = Prisma.RoleModel
 /**
+ * Model SystemPermission
+ * 
+ */
+export type SystemPermission = Prisma.SystemPermissionModel
+/**
  * Model RoomPermission
  * 
  */

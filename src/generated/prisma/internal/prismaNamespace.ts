@@ -392,6 +392,7 @@ export const ModelName = {
   Blackout: 'Blackout',
   User: 'User',
   Role: 'Role',
+  SystemPermission: 'SystemPermission',
   RoomPermission: 'RoomPermission',
   BookingAllowance: 'BookingAllowance',
   Session: 'Session',
@@ -412,7 +413,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "roomCategory" | "room" | "booking" | "schedule" | "operatingHours" | "blackout" | "user" | "role" | "roomPermission" | "bookingAllowance" | "session" | "account" | "verification"
+    modelProps: "roomCategory" | "room" | "booking" | "schedule" | "operatingHours" | "blackout" | "user" | "role" | "systemPermission" | "roomPermission" | "bookingAllowance" | "session" | "account" | "verification"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1008,6 +1009,80 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
+    SystemPermission: {
+      payload: Prisma.$SystemPermissionPayload<ExtArgs>
+      fields: Prisma.SystemPermissionFieldRefs
+      operations: {
+        findUnique: {
+          args: Prisma.SystemPermissionFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload> | null
+        }
+        findUniqueOrThrow: {
+          args: Prisma.SystemPermissionFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>
+        }
+        findFirst: {
+          args: Prisma.SystemPermissionFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload> | null
+        }
+        findFirstOrThrow: {
+          args: Prisma.SystemPermissionFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>
+        }
+        findMany: {
+          args: Prisma.SystemPermissionFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>[]
+        }
+        create: {
+          args: Prisma.SystemPermissionCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>
+        }
+        createMany: {
+          args: Prisma.SystemPermissionCreateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        createManyAndReturn: {
+          args: Prisma.SystemPermissionCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>[]
+        }
+        delete: {
+          args: Prisma.SystemPermissionDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>
+        }
+        update: {
+          args: Prisma.SystemPermissionUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>
+        }
+        deleteMany: {
+          args: Prisma.SystemPermissionDeleteManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateMany: {
+          args: Prisma.SystemPermissionUpdateManyArgs<ExtArgs>
+          result: BatchPayload
+        }
+        updateManyAndReturn: {
+          args: Prisma.SystemPermissionUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>[]
+        }
+        upsert: {
+          args: Prisma.SystemPermissionUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$SystemPermissionPayload>
+        }
+        aggregate: {
+          args: Prisma.SystemPermissionAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateSystemPermission>
+        }
+        groupBy: {
+          args: Prisma.SystemPermissionGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SystemPermissionGroupByOutputType>[]
+        }
+        count: {
+          args: Prisma.SystemPermissionCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.SystemPermissionCountAggregateOutputType> | number
+        }
+      }
+    }
     RoomPermission: {
       payload: Prisma.$RoomPermissionPayload<ExtArgs>
       fields: Prisma.RoomPermissionFieldRefs
@@ -1523,6 +1598,16 @@ export const RoleScalarFieldEnum = {
 export type RoleScalarFieldEnum = (typeof RoleScalarFieldEnum)[keyof typeof RoleScalarFieldEnum]
 
 
+export const SystemPermissionScalarFieldEnum = {
+  id: 'id',
+  roleId: 'roleId',
+  userId: 'userId',
+  permission: 'permission'
+} as const
+
+export type SystemPermissionScalarFieldEnum = (typeof SystemPermissionScalarFieldEnum)[keyof typeof SystemPermissionScalarFieldEnum]
+
+
 export const RoomPermissionScalarFieldEnum = {
   id: 'id',
   roomId: 'roomId',
@@ -1772,6 +1857,7 @@ export type GlobalOmitConfig = {
   blackout?: Prisma.BlackoutOmit
   user?: Prisma.UserOmit
   role?: Prisma.RoleOmit
+  systemPermission?: Prisma.SystemPermissionOmit
   roomPermission?: Prisma.RoomPermissionOmit
   bookingAllowance?: Prisma.BookingAllowanceOmit
   session?: Prisma.SessionOmit
