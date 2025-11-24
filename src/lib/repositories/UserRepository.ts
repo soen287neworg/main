@@ -9,7 +9,11 @@ export const findUserByEmail = async (email: string) => {
   return prisma.user.findUnique({ where: { email } });
 };
 export const findAllUsers = async () => {
-  return prisma.user.findMany();
+  return prisma.user.findMany({
+    include: {
+      roles: true,
+    },
+  });
 };
 
 export const createUser = async (data: UserCreateInput) => {
