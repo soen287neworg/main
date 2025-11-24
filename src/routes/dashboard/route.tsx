@@ -78,6 +78,20 @@ const data = {
       name: "Resources",
       url: "/dashboard/admin/resources",
       icon: BookOpen,
+      items: [
+        {
+          title: "Room management",
+          url: "/dashboard/admin/resources/rooms",
+        },
+        {
+          title: "Blackout",
+          url: "/dashboard/admin/resources/blackout",
+        },
+        {
+          title: "Schedules",
+          url: "/dashboard/admin/resources/schedules",
+        },
+      ],
     },
     {
       name: "Categories",
