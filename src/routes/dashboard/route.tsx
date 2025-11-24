@@ -1,19 +1,28 @@
 import { AppSidebar } from "@/components/dashboard/app-sidebar";
 import { SidebarInset, SidebarProvider } from "@/components/ui/sidebar";
 import { authClient } from "@/lib/auth-client";
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { getSessionFn } from "@/lib/controllers/AuthController";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
+import { AuthContext } from "better-auth";
 import {
   BookOpen,
   Bot,
-  Command,
   FlagIcon,
   PieChart,
   Settings2,
   User,
 } from "lucide-react";
+import { useEffect } from "react";
 
 export const Route = createFileRoute("/dashboard")({
   component: RouteComponent,
+  async beforeLoad(ctx) {
+    const sess = await getSessionFn();
+
+    if (!sess?.user) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+  },
 });
 
 const data = {
@@ -31,76 +40,22 @@ const data = {
       items: [
         {
           title: "Book a room",
-          url: "/booking/rooms",
+          url: "/dashboard/booking/rooms",
         },
         {
           title: "My bookings",
-          url: "/booking/me",
-        },
-      ],
-    },
-    {
-      title: "Models",
-      url: "#",
-      icon: Bot,
-      items: [
-        {
-          title: "Genesis",
-          url: "#",
-        },
-        {
-          title: "Explorer",
-          url: "#",
-        },
-        {
-          title: "Quantum",
-          url: "#",
-        },
-      ],
-    },
-    {
-      title: "Documentation",
-      url: "#",
-      icon: BookOpen,
-      items: [
-        {
-          title: "Introduction",
-          url: "#",
-        },
-        {
-          title: "Get Started",
-          url: "#",
-        },
-        {
-          title: "Tutorials",
-          url: "#",
-        },
-        {
-          title: "Changelog",
-          url: "#",
+          url: "/dashboard/booking/me",
         },
       ],
     },
     {
       title: "Settings",
-      url: "#",
+      url: "/settings",
       icon: Settings2,
       items: [
         {
-          title: "General",
-          url: "#",
-        },
-        {
-          title: "Team",
-          url: "#",
-        },
-        {
-          title: "Billing",
-          url: "#",
-        },
-        {
-          title: "Limits",
-          url: "#",
+          title: "Profile settings",
+          url: "/dashboard/profile/settings",
         },
       ],
     },
@@ -108,17 +63,17 @@ const data = {
   admin: [
     {
       name: "Analytics",
-      url: "/dashboard/analytics",
+      url: "/dashboard/admin/analytics",
       icon: PieChart,
     },
     {
       name: "Users",
-      url: "/admin/users",
+      url: "/dashboard/admin/users",
       icon: User,
     },
     {
       name: "Roles",
-      url: "/admin/roles",
+      url: "/dashboard/admin/roles",
       icon: FlagIcon,
     },
     {
@@ -136,6 +91,7 @@ function RouteComponent() {
     navMain: data.navMain,
     admin: data.admin,
   };
+
   return (
     <SidebarProvider>
       <AppSidebar data={navData} user={user} />

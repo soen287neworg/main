@@ -42,13 +42,20 @@ model Room {
   permissions   RoomPermission[] @relation("RoomToRoomPermission")
 }
 
+enum BookingStatus {
+  PENDING
+  CONFIRMED
+  CANCELLED
+  REJECTED
+}
+
 model Booking {
   id        String   @id @default(uuid())
   userId    String
   roomId    String
   startTime DateTime
   endTime   DateTime
-  status    String   @default("PENDING") // PENDING, CONFIRMED, CANCELLED
+  status    BookingStatus   @default(PENDING)
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 

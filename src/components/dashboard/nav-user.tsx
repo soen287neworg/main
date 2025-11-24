@@ -6,6 +6,7 @@ import {
   ChevronsUpDown,
   CreditCard,
   LogOut,
+  Settings,
   Sparkles,
 } from "lucide-react";
 
@@ -27,9 +28,13 @@ import {
   useSidebar,
 } from "@/components/ui/sidebar";
 import { User } from "better-auth";
+import { authClient } from "@/lib/auth-client";
+import { Link, useNavigate } from "@tanstack/react-router";
+import { toast } from "sonner";
 
 export function NavUser({ user }: { user?: User }) {
   const { isMobile } = useSidebar();
+  const navigate = useNavigate();
 
   if (!user) {
     return (
@@ -99,28 +104,35 @@ export function NavUser({ user }: { user?: User }) {
             </DropdownMenuLabel>
             <DropdownMenuSeparator />
             <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <Sparkles />
-                Upgrade to Pro
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/profile/settings">
+                  <Settings />
+                  Account
+                </Link>
+              </DropdownMenuItem>
+              <DropdownMenuItem asChild>
+                <Link to="/dashboard/profile/notifications">
+                  <Bell />
+                  Notifications
+                </Link>
               </DropdownMenuItem>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
-            <DropdownMenuGroup>
-              <DropdownMenuItem>
-                <BadgeCheck />
-                Account
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <CreditCard />
-                Billing
-              </DropdownMenuItem>
-              <DropdownMenuItem>
-                <Bell />
-                Notifications
-              </DropdownMenuItem>
-            </DropdownMenuGroup>
-            <DropdownMenuSeparator />
-            <DropdownMenuItem>
+            <DropdownMenuItem
+              onClick={() => {
+                authClient.signOut({
+                  fetchOptions: {
+                    onSuccess: () => {
+                      toast.success("Successfully logged out!");
+                      setTimeout(
+                        () => navigate({ to: "/user/auth/login" }),
+                        500
+                      );
+                    },
+                  },
+                });
+              }}
+            >
               <LogOut />
               Log out
             </DropdownMenuItem>

@@ -21,3 +21,17 @@ export const getBookingsForRoomBetweenPeriod = async (
 export const getAllBookings = async () => {
   return prisma.booking.findMany();
 };
+
+export const getBookingsByUserId = async (userId: string) => {
+  return prisma.booking.findMany({
+    where: {
+      userId,
+    },
+    include: {
+      room: true,
+    },
+    orderBy: {
+      startTime: "desc",
+    },
+  });
+};

@@ -1,6 +1,11 @@
 import * as BookingRepository from "@/lib/repositories/BookingRepository";
 import * as ScheduleService from "@/lib/services/ScheduleService";
-import { OperatingHours, Blackout } from "@/generated/prisma/client";
+import {
+  OperatingHours,
+  Blackout,
+  BookingStatus,
+  Booking,
+} from "@/generated/prisma/client";
 import { add, set } from "date-fns";
 import { Slot, SlotStatus } from "@/lib/types/booking";
 
@@ -82,6 +87,36 @@ export const getAvailabilities = async (roomId: string, date: Date) => {
   }
 
   return slots;
+};
+
+export const getUserBookings = async (userId: string) => {
+  const bookings = await BookingRepository.getBookingsByUserId(userId);
+
+  const upcomingBookings = bookings.filter(
+    (booking: Booking) =>
+      booking.startTime > new Date() &&
+      booking.status !== BookingStatus.CANCELLED &&
+      booking.status !== BookingStatus.REJECTED
+  );
+
+  const pastBookings = bookings.filter(
+    (booking: Booking) =>
+      booking.endTime < new Date() &&
+      booking.status !== BookingStatus.CANCELLED &&
+      booking.status !== BookingStatus.REJECTED
+  );
+
+  const cancelledBookings = bookings.filter(
+    (booking: Booking) =>
+      booking.status === BookingStatus.CANCELLED ||
+      booking.status === BookingStatus.REJECTED
+  );
+
+  return {
+    upcomingBookings,
+    pastBookings,
+    cancelledBookings,
+  };
 };
 
 import * as RoomRepository from "@/lib/repositories/RoomRepository";
