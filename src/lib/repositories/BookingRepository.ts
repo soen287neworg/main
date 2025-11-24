@@ -17,3 +17,7 @@ export const getBookingsForRoomBetweenPeriod = async (
     },
   });
 };
+
+export const getAllBookings = async () => {
+  return prisma.booking.findMany();
+};

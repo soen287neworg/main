@@ -108,7 +108,7 @@ const data = {
   admin: [
     {
       name: "Analytics",
-      url: "#",
+      url: "/dashboard/analytics",
       icon: PieChart,
     },
     {
