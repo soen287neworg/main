@@ -1,4 +1,4 @@
-import { BookingStatus } from "@/generated/prisma/client";
+import { BookingStatus } from "@/lib/types/booking";
 import prisma from "@/lib/prisma";
 
 export const getBookingsForRoomBetweenPeriod = async (

@@ -3,12 +3,11 @@ import * as ScheduleService from "@/lib/services/ScheduleService";
 import {
   OperatingHours,
   Blackout,
-  BookingStatus,
   Booking,
   Room,
 } from "@/generated/prisma/client";
 import { add, set, startOfDay } from "date-fns";
-import { Slot, SlotStatus } from "@/lib/types/booking";
+import { BookingStatus, Slot, SlotStatus } from "@/lib/types/booking";
 
 export const bookRoom = async (
   userId: string,

@@ -14,7 +14,6 @@ import {
 } from "@/components/ui/table";
 import type {
   Booking,
-  BookingStatus as BookingStatusEnum,
   Room,
   User,
 } from "@/generated/prisma/client";
@@ -22,6 +21,7 @@ import {
   changeBookingStatus,
   getAllBookingsWithRelations,
 } from "@/lib/services/BookingService";
+import { BookingStatus as BookingStatusEnum } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { createServerFn } from "@tanstack/react-start";
 import { createFileRoute } from "@tanstack/react-router";

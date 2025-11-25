@@ -15,6 +15,13 @@ import {
   ResizablePanel,
   ResizablePanelGroup,
 } from "@/components/ui/resizable";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useMemo, useState, Suspense, useEffect } from "react";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -200,6 +207,7 @@ function RoomsPage() {
     rooms?.[0] ?? null
   );
   const [searchTerm, setSearchTerm] = useState("");
+  const [categoryFilter, setCategoryFilter] = useState("all");
   const router = useRouter();
 
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
@@ -208,13 +216,24 @@ function RoomsPage() {
 
   const filteredRooms = useMemo(() => {
     if (!rooms) return [];
-    return rooms.filter(
-      (room: RoomWithDetails) =>
-        room.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        room.number.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        room.level.toLowerCase().includes(searchTerm.toLowerCase())
-    );
-  }, [rooms, searchTerm]);
+    const query = searchTerm.toLowerCase();
+
+    return rooms.filter((room: RoomWithDetails) => {
+      const roomCategoryId = room.categoryId ?? room.category?.id ?? null;
+      const matchesSearch =
+        room.title.toLowerCase().includes(query) ||
+        room.number.toLowerCase().includes(query) ||
+        room.level.toLowerCase().includes(query);
+      const matchesCategory =
+        categoryFilter === "all"
+          ? true
+          : categoryFilter === "uncategorized"
+            ? !roomCategoryId
+            : roomCategoryId === categoryFilter;
+
+      return matchesSearch && matchesCategory;
+    });
+  }, [rooms, searchTerm, categoryFilter]);
 
   useEffect(() => {
     if (selectedRoom) {
@@ -276,13 +295,30 @@ function RoomsPage() {
     <ResizablePanelGroup direction="horizontal" className="h-full">
       <ResizablePanel defaultSize={30}>
         <div className="p-4">
-          <div className="flex items-center justify-between mb-4">
-            <Input
-              placeholder="Search rooms..."
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-            />
-            <Button onClick={() => setIsCreateModalOpen(true)} className="ml-2">
+          <div className="mb-4 flex flex-col gap-2 sm:flex-row sm:items-center sm:justify-between">
+            <div className="flex w-full flex-col gap-2 sm:flex-1 sm:flex-row sm:items-center">
+              <Input
+                className="sm:max-w-xs"
+                placeholder="Search rooms..."
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+              />
+              <Select value={categoryFilter} onValueChange={setCategoryFilter}>
+                <SelectTrigger className="sm:w-[200px]">
+                  <SelectValue placeholder="All categories" />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All categories</SelectItem>
+                  <SelectItem value="uncategorized">Uncategorized</SelectItem>
+                  {categories?.map((category: RoomCategory) => (
+                    <SelectItem key={category.id} value={category.id}>
+                      {category.label}
+                    </SelectItem>
+                  ))}
+                </SelectContent>
+              </Select>
+            </div>
+            <Button onClick={() => setIsCreateModalOpen(true)} className="sm:ml-2">
               Create Room
             </Button>
           </div>

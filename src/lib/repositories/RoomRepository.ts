@@ -13,11 +13,15 @@ export type RoomWithSchedules = Room & {
   })[];
 };
 
-export const getPublicRooms = async (categoryId?: string, search?: string) => {
+export const getPublicRooms = async (
+  categoryId?: string | null,
+  search?: string
+) => {
   return prisma.room.findMany({
     where: {
       active: true,
-      categoryId: categoryId || undefined,
+      categoryId:
+        categoryId === null ? null : categoryId ? categoryId : undefined,
       OR: search
         ? [
             { title: { contains: search, mode: "insensitive" } },

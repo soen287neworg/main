@@ -3,7 +3,10 @@ import { RoomWithSchedules } from "@/lib/repositories/RoomRepository";
 import { RoomCreateInput, RoomUpdateInput } from "@/generated/prisma/models";
 import { Room, RoomCategory } from "@/generated/prisma/client";
 
-export const getPublicRooms = async (categoryId?: string, search?: string) => {
+export const getPublicRooms = async (
+  categoryId?: string | null,
+  search?: string
+) => {
   // Here you can add any business logic before or after fetching the data.
   // For example: logging, authorization checks, data transformation, etc.
 
