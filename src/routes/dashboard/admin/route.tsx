@@ -1,10 +1,33 @@
-import { createFileRoute, Outlet } from "@tanstack/react-router";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { checkAnyPermission } from "@/lib/utils/permissions";
+import { createServerFn } from "@tanstack/react-start";
+import { createFileRoute, Outlet, redirect } from "@tanstack/react-router";
 
-// This function verifies whether a user has the system roles to access this setting
+const validateAdminAccess = createServerFn({ method: "GET" }).handler(
+  async () => {
+    return checkAnyPermission([
+      BitfieldSystemDefinitions.MANAGE_ANALYTICS,
+      BitfieldSystemDefinitions.MANAGE_RESOURCES,
+      BitfieldSystemDefinitions.MANAGE_USERS,
+      BitfieldSystemDefinitions.MANAGE_ROLES,
+      BitfieldSystemDefinitions.MANAGE_ALERTS,
+    ]);
+  }
+);
 
 export const Route = createFileRoute("/dashboard/admin")({
   component: RouteComponent,
-  async beforeLoad(ctx) {},
+  async beforeLoad() {
+    const { hasSession, allowed } = await validateAdminAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
 });
 
 function RouteComponent() {

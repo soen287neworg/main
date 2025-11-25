@@ -35,14 +35,23 @@ import {
   listCategoriesWithRooms,
   updateCategory,
 } from "@/lib/services/RoomCategoryService";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { setResponseStatus } from "@tanstack/react-start/server";
 import { Suspense, useEffect, useMemo, useState } from "react";
 import { toast } from "sonner";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
+
+const verifyCategoryAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES)
+);
 
 export const getCategories = createServerFn({ method: "GET" }).handler(
-  async () => (await listCategoriesWithRooms()) as CategoryWithRooms[]
+  async () => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
+    return (await listCategoriesWithRooms()) as CategoryWithRooms[];
+  }
 );
 
 export const createCategoryAction = createServerFn({ method: "POST" })
@@ -50,6 +59,8 @@ export const createCategoryAction = createServerFn({ method: "POST" })
     label: data.label?.trim() ?? "",
   }))
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
+
     if (!data.label) {
       setResponseStatus(400);
       throw new Error("Category name is required.");
@@ -70,6 +81,8 @@ export const updateCategoryAction = createServerFn({ method: "POST" })
     label: data.label?.trim() ?? "",
   }))
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
+
     if (!data.categoryId || !data.label) {
       setResponseStatus(400);
       throw new Error("Category id and name are required.");
@@ -87,6 +100,8 @@ export const updateCategoryAction = createServerFn({ method: "POST" })
 export const deleteCategoryAction = createServerFn({ method: "POST" })
   .inputValidator((data: { categoryId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
+
     if (!data.categoryId) {
       setResponseStatus(400);
       throw new Error("Category id is required.");
@@ -99,6 +114,17 @@ export const deleteCategoryAction = createServerFn({ method: "POST" })
 
 export const Route = createFileRoute("/dashboard/admin/categories")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifyCategoryAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: () => getCategories(),
 });
 

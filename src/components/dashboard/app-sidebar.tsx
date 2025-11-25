@@ -26,6 +26,7 @@ import {
 } from "@/components/ui/sidebar";
 import { type LucideIcon } from "lucide-react";
 import { type User as UserAuth } from "better-auth";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
 
 interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
   data: {
@@ -43,6 +44,12 @@ interface AppSidebarProps extends React.ComponentProps<typeof Sidebar> {
       name: string;
       url: string;
       icon: LucideIcon;
+      requiredPermission?: BitfieldSystemDefinitions;
+      items?: {
+        title: string;
+        url: string;
+        requiredPermission?: BitfieldSystemDefinitions;
+      }[];
     }[];
   };
   user?: UserAuth;

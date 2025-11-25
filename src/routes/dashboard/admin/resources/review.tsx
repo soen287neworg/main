@@ -24,11 +24,13 @@ import {
 import { BookingStatus as BookingStatusEnum } from "@/lib/types/booking";
 import { cn } from "@/lib/utils";
 import { createServerFn } from "@tanstack/react-start";
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { format } from "date-fns";
 import { CheckCircle2, Clock3, Search, XCircle } from "lucide-react";
 import { useMemo, useState } from "react";
 import { toast } from "sonner";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
 
 type BookingWithRelations = Booking & { user: User; room: Room };
 type BookingStatusValue = BookingStatusEnum;
@@ -67,17 +69,34 @@ const tabOptions: { value: FilterOption; label: string }[] = [
 ];
 
 export const getBookings = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
   return getAllBookingsWithRelations();
 });
 
 export const updateBookingStatusFn = createServerFn({ method: "POST" })
   .inputValidator((data: { bookingId: string; status: BookingStatusEnum }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     return changeBookingStatus(data.bookingId, data.status);
   });
 
+const verifyBookingReviewAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES)
+);
+
 export const Route = createFileRoute("/dashboard/admin/resources/review")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifyBookingReviewAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: () => getBookings(),
 });
 

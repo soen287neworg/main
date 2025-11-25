@@ -1,4 +1,4 @@
-import { createFileRoute, useLoaderData } from "@tanstack/react-router";
+import { createFileRoute, redirect, useLoaderData } from "@tanstack/react-router";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartContainer,
@@ -8,13 +8,31 @@ import {
 import { LineChart, Line, XAxis, YAxis, CartesianGrid } from "recharts";
 import { getDashboardAnalytics } from "@/lib/services/BookingService";
 import { createServerFn } from "@tanstack/react-start";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
 
-const getAnalytics = createServerFn({ method: "GET" }).handler(() =>
-  getDashboardAnalytics()
+const verifyAnalyticsAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_ANALYTICS)
 );
+
+const getAnalytics = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_ANALYTICS);
+  return getDashboardAnalytics();
+});
 
 export const Route = createFileRoute("/dashboard/admin/analytics")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifyAnalyticsAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: async () => {
     return getAnalytics();
   },

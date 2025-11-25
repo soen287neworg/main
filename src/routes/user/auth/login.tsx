@@ -194,7 +194,7 @@ function LoginPage() {
                 <Button
                   type="submit"
                   disabled={!canSubmit}
-                  className="w-full mt-3 bg-amber-400 hover:bg-amber-500 text-white font-semibold rounded-xl h-11"
+                  className="w-full mt-3 bg-black hover:bg-amber-500 text-white font-semibold rounded-xl h-11"
                 >
                   {isSubmitting ? "Signing In..." : "Sign In"}
                 </Button>
@@ -205,7 +205,7 @@ function LoginPage() {
           <div className="mt-6 text-center">
             <Link
               to="/user/auth/register"
-              className="text-sm text-amber-500 hover:text-amber-600 underline-offset-2"
+              className="text-sm text-black-500 hover:text-amber-600 underline-offset-2"
             >
               Don't have an account? Sign up
             </Link>

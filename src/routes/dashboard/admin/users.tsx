@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import {
   findAllUsers,
   updateUser,
@@ -45,14 +45,22 @@ import {
 } from "@/components/dashboard/user-management-modals";
 import { UserUpdateInput } from "@/generated/prisma/models";
 import { Plus } from "lucide-react";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
 
 type UserWithRoles = User & { roles: Role[] };
 
+const verifyUserManagementAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_USERS)
+);
+
 export const getUsers = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_USERS);
   return (await findAllUsers()) as UserWithRoles[];
 });
 
 export const getRoles = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_USERS);
   return await findAllRoles();
 });
 
@@ -61,6 +69,7 @@ export const addUserRole = createServerFn({
 })
   .inputValidator((data: { userId: string; roleId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_USERS);
     return await addRoleToUser(data.userId, data.roleId);
   });
 
@@ -69,6 +78,7 @@ export const updateUserFn = createServerFn({
 })
   .inputValidator((data: { userId: string; userData: UserUpdateInput }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_USERS);
     return await updateUser(data.userId, data.userData);
   });
 
@@ -77,6 +87,7 @@ export const deleteUserFn = createServerFn({
 })
   .inputValidator((data: { userId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_USERS);
     return await deleteUser(data.userId);
   });
 
@@ -85,11 +96,23 @@ export const removeUserRole = createServerFn({
 })
   .inputValidator((data: { userId: string; roleId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_USERS);
     return await removeRoleFromUser(data.userId, data.roleId);
   });
 
 export const Route = createFileRoute("/dashboard/admin/users")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifyUserManagementAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: async () => {
     const users = await getUsers();
     const roles = await getRoles();

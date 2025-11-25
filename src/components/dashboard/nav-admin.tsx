@@ -17,6 +17,7 @@ import {
   SidebarMenuSubButton,
   SidebarMenuSubItem,
 } from "@/components/ui/sidebar";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
 
 export function NavAdmin({
   admin,
@@ -25,9 +26,11 @@ export function NavAdmin({
     name: string;
     url: string;
     icon: LucideIcon;
+    requiredPermission?: BitfieldSystemDefinitions;
     items?: {
       title: string;
       url: string;
+      requiredPermission?: BitfieldSystemDefinitions;
     }[];
   }[];
 }) {

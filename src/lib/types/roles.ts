@@ -15,3 +15,13 @@ export enum BitfieldSystemDefinitions {
 }
 
 export enum BitfieldRoomDefinitions {}
+
+export const hasSystemPermission = (
+  permissionMask: number,
+  required: BitfieldSystemDefinitions
+) => (permissionMask & required) === required;
+
+export const hasAnySystemPermission = (
+  permissionMask: number,
+  permissions: BitfieldSystemDefinitions[]
+) => permissions.some((permission) => hasSystemPermission(permissionMask, permission));

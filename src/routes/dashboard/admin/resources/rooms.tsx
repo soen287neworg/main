@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import {
   getAllRooms,
   createRoom,
@@ -27,6 +27,8 @@ import { Button } from "@/components/ui/button";
 import { Room, RoomCategory, Booking } from "@/generated/prisma/client";
 import { createServerFn } from "@tanstack/react-start";
 import { toast } from "sonner";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
 import {
   CreateRoomModal,
   EditRoomModal,
@@ -62,7 +64,12 @@ type CreateRoomData = {
   imageUrl?: string;
 };
 
+const verifyResourceManagementAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES)
+);
+
 export const getRooms = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
   return await getAllRooms();
 });
 
@@ -71,6 +78,7 @@ export const getRoomDetails = createServerFn({
 })
   .inputValidator((data: { roomId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     return await getRoomWithDetails(data.roomId);
   });
 
@@ -79,6 +87,7 @@ export const createRoomFn = createServerFn({
 })
   .inputValidator((data: CreateRoomData) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     return await createRoom(data);
   });
 
@@ -87,6 +96,7 @@ export const updateRoomFn = createServerFn({
 })
   .inputValidator((data: { roomId: string; roomData: CreateRoomData }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     const roomData = {
       number: data.roomData.number,
       title: data.roomData.title,
@@ -119,17 +129,30 @@ export const deleteRoomFn = createServerFn({
 })
   .inputValidator((data: { roomId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     return await deleteRoom(data.roomId);
   });
 
 export const getCategories = createServerFn({ method: "GET" }).handler(
   async () => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     return await listCategoriesWithRooms();
   }
 );
 
 export const Route = createFileRoute("/dashboard/admin/resources/rooms")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifyResourceManagementAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: async () => {
     const rooms = await getRooms();
     const categories = await getCategories();

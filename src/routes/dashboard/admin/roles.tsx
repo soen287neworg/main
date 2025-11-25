@@ -1,4 +1,4 @@
-import { createFileRoute, useRouter } from "@tanstack/react-router";
+import { createFileRoute, redirect, useRouter } from "@tanstack/react-router";
 import {
   findAllRoles,
   createRole,
@@ -38,6 +38,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { BitfieldSystemDefinitions } from "@/lib/types/roles";
 import { Shield, Users, Settings, Plus } from "lucide-react";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
 
 type RoleWithDetails = Role & {
   users: any[];
@@ -45,7 +46,12 @@ type RoleWithDetails = Role & {
 };
 
 // Server Functions
+const verifyRoleManagementAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_ROLES)
+);
+
 export const getRoles = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_ROLES);
   return (await findAllRoles()) as RoleWithDetails[];
 });
 
@@ -54,6 +60,7 @@ export const getRoleDetails = createServerFn({
 })
   .inputValidator((data: { roleId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_ROLES);
     return await findRoleByIdService(data.roleId);
   });
 
@@ -62,6 +69,7 @@ export const createRoleFn = createServerFn({
 })
   .inputValidator((data: { name: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_ROLES);
     return await createRole(data.name);
   });
 
@@ -70,6 +78,7 @@ export const updateRoleFn = createServerFn({
 })
   .inputValidator((data: { roleId: string; name: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_ROLES);
     return await updateRole(data.roleId, data.name);
   });
 
@@ -78,6 +87,7 @@ export const deleteRoleFn = createServerFn({
 })
   .inputValidator((data: { roleId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_ROLES);
     return await deleteRole(data.roleId);
   });
 
@@ -86,11 +96,23 @@ export const setPermissionFn = createServerFn({
 })
   .inputValidator((data: { roleId: string; permission: number }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_ROLES);
     return await setSystemPermission(data.roleId, data.permission);
   });
 
 export const Route = createFileRoute("/dashboard/admin/roles")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifyRoleManagementAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: async () => {
     const roles = await getRoles();
     return { roles };

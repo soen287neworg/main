@@ -1,4 +1,4 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, redirect } from "@tanstack/react-router";
 import { createServerFn } from "@tanstack/react-start";
 import { Suspense, useEffect, useMemo, useState, type ReactNode } from "react";
 import { z } from "zod";
@@ -60,6 +60,8 @@ import {
   deleteBlackout,
 } from "@/lib/services/ScheduleService";
 import { getRoomsWithSchedules as fetchRoomsWithSchedules } from "@/lib/services/RoomService";
+import { BitfieldSystemDefinitions } from "@/lib/types/roles";
+import { assertPermission, checkPermission } from "@/lib/utils/permissions";
 
 type OperatingHoursFormInput = {
   dayOfWeek: number;
@@ -137,13 +139,19 @@ const sortSchedules = (list: ScheduleWithDetails[]) =>
     return new Date(b.activeFrom).getTime() - new Date(a.activeFrom).getTime();
   });
 
+const verifySchedulesAccess = createServerFn({ method: "GET" }).handler(
+  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES)
+);
+
 export const getRoomsFn = createServerFn({ method: "GET" }).handler(async () => {
+  await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
   return (await fetchRoomsWithSchedules()) as RoomWithSchedules[];
 });
 
 export const saveScheduleFn = createServerFn({ method: "POST" })
   .inputValidator((data: ScheduleFormPayload) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     const activeFrom = new Date(data.activeFrom);
     const expiresAt = data.expiresAt ? new Date(data.expiresAt) : null;
 
@@ -186,6 +194,7 @@ export const saveScheduleFn = createServerFn({ method: "POST" })
 export const createBlackoutFn = createServerFn({ method: "POST" })
   .inputValidator((data: BlackoutPayload) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     const startTime = new Date(data.startTime);
     const endTime = new Date(data.endTime);
 
@@ -209,6 +218,7 @@ export const createBlackoutFn = createServerFn({ method: "POST" })
 export const updateBlackoutFn = createServerFn({ method: "POST" })
   .inputValidator((data: BlackoutPayload) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     if (!data.blackoutId) {
       throw new Error("Blackout id is required.");
     }
@@ -236,6 +246,7 @@ export const updateBlackoutFn = createServerFn({ method: "POST" })
 export const deleteBlackoutFn = createServerFn({ method: "POST" })
   .inputValidator((data: { blackoutId: string }) => data)
   .handler(async ({ data }) => {
+    await assertPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES);
     if (!data.blackoutId) {
       throw new Error("Blackout id is required.");
     }
@@ -245,6 +256,17 @@ export const deleteBlackoutFn = createServerFn({ method: "POST" })
 
 export const Route = createFileRoute("/dashboard/admin/resources/schedules")({
   component: RouteComponent,
+  async beforeLoad() {
+    const { hasSession, allowed } = await verifySchedulesAccess();
+
+    if (!hasSession) {
+      throw redirect({ to: "/user/auth/login" });
+    }
+
+    if (!allowed) {
+      throw redirect({ to: "/dashboard" });
+    }
+  },
   loader: async () => {
     const rooms = await getRoomsFn();
     return { rooms };
