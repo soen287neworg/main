@@ -64,8 +64,10 @@ type CreateRoomData = {
   imageUrl?: string;
 };
 
-const verifyResourceManagementAccess = createServerFn({ method: "GET" }).handler(
-  async () => checkPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES)
+const verifyResourceManagementAccess = createServerFn({
+  method: "GET",
+}).handler(async () =>
+  checkPermission(BitfieldSystemDefinitions.MANAGE_RESOURCES)
 );
 
 export const getRooms = createServerFn({ method: "GET" }).handler(async () => {
@@ -278,7 +280,7 @@ function RoomsPage() {
           const formData = new FormData();
           formData.append("image", values.imageFile);
 
-          const response = await fetch("/api/rooms/upload-image", {
+          const response = await fetch("/api/upload-image", {
             method: "POST",
             body: formData,
           });
@@ -331,7 +333,7 @@ function RoomsPage() {
           const formData = new FormData();
           formData.append("image", values.imageFile);
 
-          const response = await fetch("/api/rooms/upload-image", {
+          const response = await fetch("/api/upload-image", {
             method: "POST",
             body: formData,
           });
@@ -413,7 +415,10 @@ function RoomsPage() {
                 </SelectContent>
               </Select>
             </div>
-            <Button onClick={() => setIsCreateModalOpen(true)} className="sm:ml-2">
+            <Button
+              onClick={() => setIsCreateModalOpen(true)}
+              className="sm:ml-2"
+            >
               Create Room
             </Button>
           </div>
