@@ -5,7 +5,15 @@ import { z } from "zod";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import { Plus, CalendarClock, Clock3, Power, ShieldX } from "lucide-react";
+import {
+  Plus,
+  CalendarClock,
+  Clock3,
+  Power,
+  ShieldX,
+  Pencil,
+  Trash2,
+} from "lucide-react";
 
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
@@ -48,6 +56,8 @@ import {
   addBlackoutToSchedule,
   createScheduleForRoom,
   updateScheduleForRoom,
+  updateBlackout,
+  deleteBlackout,
 } from "@/lib/services/ScheduleService";
 import { getRoomsWithSchedules as fetchRoomsWithSchedules } from "@/lib/services/RoomService";
 
@@ -70,6 +80,7 @@ type ScheduleFormPayload = {
 };
 
 type BlackoutPayload = {
+  blackoutId?: string;
   scheduleId: string;
   roomId: string;
   startTime: string;
@@ -78,6 +89,7 @@ type BlackoutPayload = {
 };
 
 type RoomWithSchedules = Room & { schedules: ScheduleWithDetails[] };
+type BlackoutItem = ScheduleWithDetails["blackouts"][number];
 
 const dayNames = [
   "Sunday",
@@ -194,6 +206,43 @@ export const createBlackoutFn = createServerFn({ method: "POST" })
     return { blackout, scheduleId: data.scheduleId };
   });
 
+export const updateBlackoutFn = createServerFn({ method: "POST" })
+  .inputValidator((data: BlackoutPayload) => data)
+  .handler(async ({ data }) => {
+    if (!data.blackoutId) {
+      throw new Error("Blackout id is required.");
+    }
+
+    const startTime = new Date(data.startTime);
+    const endTime = new Date(data.endTime);
+
+    if (Number.isNaN(startTime.getTime()) || Number.isNaN(endTime.getTime())) {
+      throw new Error("Please provide both start and end times.");
+    }
+
+    if (endTime <= startTime) {
+      throw new Error("End time must be after start time.");
+    }
+
+    const blackout = await updateBlackout(data.blackoutId, {
+      startTime,
+      endTime,
+      reason: data.reason,
+    });
+
+    return { blackout, scheduleId: data.scheduleId };
+  });
+
+export const deleteBlackoutFn = createServerFn({ method: "POST" })
+  .inputValidator((data: { blackoutId: string }) => data)
+  .handler(async ({ data }) => {
+    if (!data.blackoutId) {
+      throw new Error("Blackout id is required.");
+    }
+    await deleteBlackout(data.blackoutId);
+    return { blackoutId: data.blackoutId };
+  });
+
 export const Route = createFileRoute("/dashboard/admin/resources/schedules")({
   component: RouteComponent,
   loader: async () => {
@@ -248,6 +297,15 @@ function SchedulesPage() {
   const [isBlackoutModalOpen, setIsBlackoutModalOpen] = useState(false);
   const [editingSchedule, setEditingSchedule] = useState<ScheduleWithDetails | null>(null);
   const [targetSchedule, setTargetSchedule] = useState<ScheduleWithDetails | null>(null);
+  const [editingBlackout, setEditingBlackout] = useState<{
+    schedule: ScheduleWithDetails;
+    blackout: BlackoutItem;
+  } | null>(null);
+  const [deleteBlackoutTarget, setDeleteBlackoutTarget] = useState<{
+    roomId: string;
+    scheduleId: string;
+    blackout: BlackoutItem;
+  } | null>(null);
 
   useEffect(() => {
     setRooms(loadedRooms ?? []);
@@ -315,32 +373,78 @@ function SchedulesPage() {
     }
   };
 
-  const handleCreateBlackout = async (payload: BlackoutPayload) => {
+  const handleSaveBlackout = async (payload: BlackoutPayload) => {
     try {
-      const result = await createBlackoutFn({ data: payload });
+      const result = payload.blackoutId
+        ? await updateBlackoutFn({ data: payload })
+        : await createBlackoutFn({ data: payload });
+
       setRooms((prev) =>
         prev.map((room) =>
           room.id !== payload.roomId
             ? room
             : {
                 ...room,
+                schedules: room.schedules.map((schedule) => {
+                  if (schedule.id !== payload.scheduleId) return schedule;
+                  const updatedList = payload.blackoutId
+                    ? schedule.blackouts.map((b) =>
+                        b.id === payload.blackoutId ? result.blackout : b
+                      )
+                    : [result.blackout, ...schedule.blackouts];
+                  return {
+                    ...schedule,
+                    blackouts: updatedList,
+                  };
+                }),
+              }
+        )
+      );
+
+      toast.success(payload.blackoutId ? "Blackout updated." : "Blackout added.");
+      setIsBlackoutModalOpen(false);
+      setTargetSchedule(null);
+      setEditingBlackout(null);
+    } catch (error) {
+      toast.error(
+        error instanceof Error ? error.message : "Failed to save blackout."
+      );
+    }
+  };
+
+  const handleDeleteBlackout = async ({
+    blackoutId,
+    scheduleId,
+    roomId,
+  }: {
+    blackoutId: string;
+    scheduleId: string;
+    roomId: string;
+  }) => {
+    try {
+      await deleteBlackoutFn({ data: { blackoutId } });
+      setRooms((prev) =>
+        prev.map((room) =>
+          room.id !== roomId
+            ? room
+            : {
+                ...room,
                 schedules: room.schedules.map((schedule) =>
-                  schedule.id === payload.scheduleId
-                    ? {
+                  schedule.id !== scheduleId
+                    ? schedule
+                    : {
                         ...schedule,
-                        blackouts: [result.blackout, ...schedule.blackouts],
+                        blackouts: schedule.blackouts.filter((b) => b.id !== blackoutId),
                       }
-                    : schedule
                 ),
               }
         )
       );
-      toast.success("Blackout added.");
-      setIsBlackoutModalOpen(false);
-      setTargetSchedule(null);
+      toast.success("Blackout removed.");
+      setDeleteBlackoutTarget(null);
     } catch (error) {
       toast.error(
-        error instanceof Error ? error.message : "Failed to add blackout."
+        error instanceof Error ? error.message : "Failed to remove blackout."
       );
     }
   };
@@ -454,6 +558,7 @@ function SchedulesPage() {
                             size="sm"
                             onClick={() => {
                               setTargetSchedule(schedule);
+                              setEditingBlackout(null);
                               setIsBlackoutModalOpen(true);
                             }}
                           >
@@ -521,9 +626,40 @@ function SchedulesPage() {
                                   key={blackout.id}
                                   className="rounded-md border border-destructive/40 bg-destructive/5 px-3 py-2 text-sm"
                                 >
-                                  <div className="flex items-center gap-2 font-medium text-destructive">
-                                    <ShieldX className="h-4 w-4" />
-                                    Maintenance window
+                                  <div className="flex items-start justify-between gap-3">
+                                    <div className="flex items-center gap-2 font-medium text-destructive">
+                                      <ShieldX className="h-4 w-4" />
+                                      Maintenance window
+                                    </div>
+                                    <div className="flex items-center gap-1">
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        onClick={() => {
+                                          setTargetSchedule(schedule);
+                                          setEditingBlackout({ schedule, blackout });
+                                          setIsBlackoutModalOpen(true);
+                                        }}
+                                        aria-label="Edit blackout"
+                                      >
+                                        <Pencil className="h-4 w-4" />
+                                      </Button>
+                                      <Button
+                                        size="icon"
+                                        variant="ghost"
+                                        className="text-destructive hover:text-destructive"
+                                        onClick={() =>
+                                          setDeleteBlackoutTarget({
+                                            blackout,
+                                            scheduleId: schedule.id,
+                                            roomId: selectedRoom.id,
+                                          })
+                                        }
+                                        aria-label="Delete blackout"
+                                      >
+                                        <Trash2 className="h-4 w-4" />
+                                      </Button>
+                                    </div>
                                   </div>
                                   <p className="text-muted-foreground">
                                     {formatDateTime(blackout.startTime)} to {formatDateTime(blackout.endTime)}
@@ -564,13 +700,56 @@ function SchedulesPage() {
       <BlackoutModal
         room={selectedRoom}
         schedule={targetSchedule}
+        blackout={editingBlackout?.blackout ?? null}
         isOpen={isBlackoutModalOpen}
         onClose={() => {
           setTargetSchedule(null);
+          setEditingBlackout(null);
           setIsBlackoutModalOpen(false);
         }}
-        onSave={handleCreateBlackout}
+        onSave={handleSaveBlackout}
       />
+
+      <Dialog
+        open={!!deleteBlackoutTarget}
+        onOpenChange={(open) => {
+          if (!open) {
+            setDeleteBlackoutTarget(null);
+          }
+        }}
+      >
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Remove blackout window?</DialogTitle>
+          </DialogHeader>
+          <p className="text-sm text-muted-foreground">
+            This will reopen the schedule for bookings during this time window.
+          </p>
+          <DialogFooter>
+            <Button
+              type="button"
+              variant="outline"
+              onClick={() => setDeleteBlackoutTarget(null)}
+            >
+              Cancel
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              onClick={() => {
+                if (!deleteBlackoutTarget) return;
+                handleDeleteBlackout({
+                  blackoutId: deleteBlackoutTarget.blackout.id,
+                  scheduleId: deleteBlackoutTarget.scheduleId,
+                  roomId: deleteBlackoutTarget.roomId,
+                });
+              }}
+            >
+              Confirm
+            </Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
     </div>
   );
 }
@@ -670,7 +849,7 @@ function ScheduleModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-3xl">
+      <DialogContent className="max-w-5xl px-6">
         <DialogHeader>
           <DialogTitle>
             {schedule ? "Edit schedule" : "Create schedule"}
@@ -917,12 +1096,14 @@ type BlackoutFormValues = z.infer<typeof blackoutFormSchema>;
 function BlackoutModal({
   room,
   schedule,
+  blackout,
   isOpen,
   onClose,
   onSave,
 }: {
   room: RoomWithSchedules | null;
   schedule: ScheduleWithDetails | null;
+  blackout: BlackoutItem | null;
   isOpen: boolean;
   onClose: () => void;
   onSave: (payload: BlackoutPayload) => void;
@@ -930,19 +1111,23 @@ function BlackoutModal({
   const form = useForm<BlackoutFormValues>({
     resolver: zodResolver(blackoutFormSchema),
     defaultValues: {
-      startTime: toInputDateTime(new Date()),
-      endTime: "",
-      reason: "",
+      startTime: blackout?.startTime
+        ? toInputDateTime(blackout.startTime)
+        : toInputDateTime(new Date()),
+      endTime: blackout?.endTime ? toInputDateTime(blackout.endTime) : "",
+      reason: blackout?.reason ?? "",
     },
   });
 
   useEffect(() => {
     form.reset({
-      startTime: toInputDateTime(new Date()),
-      endTime: "",
-      reason: "",
+      startTime: blackout?.startTime
+        ? toInputDateTime(blackout.startTime)
+        : toInputDateTime(new Date()),
+      endTime: blackout?.endTime ? toInputDateTime(blackout.endTime) : "",
+      reason: blackout?.reason ?? "",
     });
-  }, [schedule?.id, room?.id, form]);
+  }, [schedule?.id, blackout?.id, room?.id, form]);
 
   const handleSubmit = (values: BlackoutFormValues) => {
     if (!room || !schedule) return;
@@ -958,6 +1143,7 @@ function BlackoutModal({
 
     onSave({
       ...values,
+      blackoutId: blackout?.id,
       scheduleId: schedule.id,
       roomId: room.id,
     });

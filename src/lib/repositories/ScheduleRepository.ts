@@ -102,6 +102,29 @@ export const addBlackoutToSchedule = async (
   });
 };
 
+export const updateBlackout = async (
+  blackoutId: string,
+  data: { startTime: Date; endTime: Date; reason?: string | null }
+): Promise<Blackout> => {
+  return prisma.blackout.update({
+    where: { id: blackoutId },
+    data: {
+      startTime: data.startTime,
+      endTime: data.endTime,
+      reason: data.reason ?? null,
+    },
+  });
+};
+
+export const deleteBlackout = async (blackoutId: string): Promise<{ id: string }> => {
+  const deleted = await prisma.blackout.delete({
+    where: { id: blackoutId },
+    select: { id: true },
+  });
+
+  return deleted;
+};
+
 export const getActiveScheduleForRoom = async (
   roomId: string,
   targetDate: Date

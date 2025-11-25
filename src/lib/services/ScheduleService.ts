@@ -48,6 +48,17 @@ export const addBlackoutToSchedule = async (
   return ScheduleRepository.addBlackoutToSchedule(scheduleId, data);
 };
 
+export const updateBlackout = async (
+  blackoutId: string,
+  data: { startTime: Date; endTime: Date; reason?: string | null }
+): Promise<Blackout> => {
+  return ScheduleRepository.updateBlackout(blackoutId, data);
+};
+
+export const deleteBlackout = async (blackoutId: string) => {
+  return ScheduleRepository.deleteBlackout(blackoutId);
+};
+
 export const getActiveScheduleForRoom = async (
   roomId: string,
   targetDate: Date

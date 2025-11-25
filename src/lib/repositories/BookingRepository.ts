@@ -1,3 +1,4 @@
+import { BookingStatus } from "@/generated/prisma/client";
 import prisma from "@/lib/prisma";
 
 export const getBookingsForRoomBetweenPeriod = async (
@@ -48,6 +49,32 @@ export const getBookingsByUserId = async (userId: string) => {
     },
     orderBy: {
       startTime: "desc",
+    },
+  });
+};
+
+export const getAllBookingsWithRelations = async () => {
+  return prisma.booking.findMany({
+    include: {
+      user: true,
+      room: true,
+    },
+    orderBy: {
+      createdAt: "desc",
+    },
+  });
+};
+
+export const updateBookingStatus = async (
+  bookingId: string,
+  status: BookingStatus
+) => {
+  return prisma.booking.update({
+    where: { id: bookingId },
+    data: { status },
+    include: {
+      user: true,
+      room: true,
     },
   });
 };

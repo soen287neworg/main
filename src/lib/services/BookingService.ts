@@ -149,6 +149,28 @@ export const getUserBookings = async (userId: string) => {
 
 import * as RoomRepository from "@/lib/repositories/RoomRepository";
 
+export const getAllBookingsWithRelations = async () => {
+  return BookingRepository.getAllBookingsWithRelations();
+};
+
+export const changeBookingStatus = async (
+  bookingId: string,
+  status: BookingStatus
+) => {
+  const allowedStatuses = [
+    BookingStatus.CONFIRMED,
+    BookingStatus.REJECTED,
+    BookingStatus.CANCELLED,
+    BookingStatus.PENDING,
+  ];
+
+  if (!allowedStatuses.includes(status)) {
+    throw new Error("Unsupported booking status update.");
+  }
+
+  return BookingRepository.updateBookingStatus(bookingId, status);
+};
+
 export const getDashboardAnalytics = async () => {
   const rooms = await RoomRepository.getPublicRooms();
   const allBookings = await BookingRepository.getAllBookings();
