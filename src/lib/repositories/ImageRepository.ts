@@ -11,13 +11,20 @@ export const uploadImage = async (
 ) => {
   const fileKey = `${directory}/${randomUUID()}`;
 
+  // Convert Web File to Buffer for AWS SDK compatibility
+  const arrayBuffer = await image.arrayBuffer();
+  const buffer = Buffer.from(arrayBuffer);
+
   const command = new PutObjectCommand({
     Bucket: bucket,
     Key: fileKey,
-    Body: image,
+    Body: buffer,
     ContentType: image.type,
-    ACL: acl || "public-read",
+    ACL: acl,
   });
 
-  return s3.send(command);
+  await s3.send(command);
+
+  // Return the file key for URL construction
+  return fileKey;
 };

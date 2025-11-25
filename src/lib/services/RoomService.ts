@@ -1,7 +1,5 @@
 import * as RoomRepository from "@/lib/repositories/RoomRepository";
 import { RoomWithSchedules } from "@/lib/repositories/RoomRepository";
-import { RoomCreateInput, RoomUpdateInput } from "@/generated/prisma/models";
-import { Room, RoomCategory } from "@/generated/prisma/client";
 
 export const getPublicRooms = async (
   categoryId?: string | null,

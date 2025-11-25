@@ -1,7 +1,6 @@
 import { createFileRoute, useRouter } from "@tanstack/react-router";
 import {
   getAllRooms,
-  getRoomById,
   createRoom,
   updateRoom,
   deleteRoom,
@@ -44,12 +43,23 @@ import {
 } from "@/components/ui/table";
 import { Badge } from "@/components/ui/badge";
 import { Calendar, Clock, MapPin, Users } from "lucide-react";
-import { RoomUpdateInput } from "@/generated/prisma/models";
 
 type RoomWithDetails = Room & {
   category?: RoomCategory | null;
   bookings?: (Booking & { user: { name: string; email: string } })[];
   schedules?: any[];
+};
+
+type CreateRoomData = {
+  number: string;
+  title: string;
+  description: string;
+  note?: string;
+  level: string;
+  capacity: number;
+  categoryId?: string;
+  active: boolean;
+  imageUrl?: string;
 };
 
 export const getRooms = createServerFn({ method: "GET" }).handler(async () => {
@@ -67,41 +77,24 @@ export const getRoomDetails = createServerFn({
 export const createRoomFn = createServerFn({
   method: "POST",
 })
-  .inputValidator((data: RoomFormValues) => data)
+  .inputValidator((data: CreateRoomData) => data)
   .handler(async ({ data }) => {
-    const roomData = {
-      number: data.number,
-      title: data.title,
-      description: data.description,
-      note: data.note || null,
-      level: data.level,
-      capacity: data.capacity,
-      categoryId: data.categoryId === "none" ? null : data.categoryId || null,
-      active: data.active,
-    };
-
-    if (data.imageFile) {
-      // TODO: Implement image upload logic
-      roomData.imageUrl =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
-    }
-
-    return await createRoom(roomData);
+    return await createRoom(data);
   });
 
 export const updateRoomFn = createServerFn({
   method: "POST",
 })
-  .inputValidator((data: { roomId: string; roomData: RoomFormValues }) => data)
+  .inputValidator((data: { roomId: string; roomData: CreateRoomData }) => data)
   .handler(async ({ data }) => {
-    const roomData: any = {
+    const roomData = {
       number: data.roomData.number,
       title: data.roomData.title,
       description: data.roomData.description,
       level: data.roomData.level,
       capacity: data.roomData.capacity,
       active: data.roomData.active,
-    };
+    } as any;
 
     // Only include optional fields if they have values
     if (data.roomData.note && data.roomData.note.trim()) {
@@ -114,11 +107,8 @@ export const updateRoomFn = createServerFn({
     }
 
     // Handle image upload if provided
-    if (data.roomData.imageFile) {
-      // TODO: Implement image upload logic here
-      // For now, we'll use a placeholder
-      roomData.imageUrl =
-        "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mNkYPhfDwAChwGA60e6kgAAAABJRU5ErkJggg==";
+    if (data.roomData.imageUrl) {
+      roomData.imageUrl = data.roomData.imageUrl;
     }
 
     return await updateRoom(data.roomId, roomData);
@@ -256,25 +246,107 @@ function RoomsPage() {
   };
 
   const handleCreateRoom = async (values: RoomFormValues) => {
-    toast.promise(createRoomFn({ data: values }), {
-      loading: "Loading...",
-      success: "Room created successfully",
-      error: "Failed to create room",
-      finally() {
-        router.invalidate();
-      },
-    });
+    try {
+      // Handle image upload first if there's a file
+      let imageUrl: string | undefined = undefined;
+
+      if (values.imageFile) {
+        try {
+          const formData = new FormData();
+          formData.append("image", values.imageFile);
+
+          const response = await fetch("/api/rooms/upload-image", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Upload failed");
+          }
+
+          const result = await response.json();
+          imageUrl = result.imageUrl;
+        } catch (error) {
+          console.error("Failed to upload image:", error);
+          toast.error("Failed to upload image");
+          return;
+        }
+      }
+
+      const roomData: CreateRoomData = {
+        number: values.number,
+        title: values.title,
+        description: values.description,
+        note: values.note || undefined,
+        level: values.level,
+        capacity: values.capacity,
+        categoryId:
+          values.categoryId === "none" ? undefined : values.categoryId,
+        active: values.active,
+        imageUrl: imageUrl,
+      };
+
+      await createRoomFn({ data: roomData });
+      toast.success("Room created successfully");
+      router.invalidate();
+      setIsCreateModalOpen(false);
+    } catch (error) {
+      console.error("Failed to create room:", error);
+      toast.error("Failed to create room");
+    }
   };
 
   const handleUpdateRoom = async (values: RoomFormValues) => {
     if (!selectedRoom) return;
+
     try {
+      // Handle image upload if there's a new file
+      let imageUrl: string | undefined = selectedRoom.imageUrl;
+
+      if (values.imageFile) {
+        try {
+          const formData = new FormData();
+          formData.append("image", values.imageFile);
+
+          const response = await fetch("/api/rooms/upload-image", {
+            method: "POST",
+            body: formData,
+          });
+
+          if (!response.ok) {
+            throw new Error("Upload failed");
+          }
+
+          const result = await response.json();
+          imageUrl = result.imageUrl;
+        } catch (error) {
+          console.error("Failed to upload image:", error);
+          toast.error("Failed to upload image");
+          return;
+        }
+      }
+
+      const roomData: CreateRoomData = {
+        number: values.number,
+        title: values.title,
+        description: values.description,
+        note: values.note || undefined,
+        level: values.level,
+        capacity: values.capacity,
+        categoryId:
+          values.categoryId === "none" ? undefined : values.categoryId,
+        active: values.active,
+        imageUrl: imageUrl,
+      };
+
       await updateRoomFn({
-        data: { roomId: selectedRoom.id, roomData: values },
+        data: { roomId: selectedRoom.id, roomData },
       });
       toast.success("Room updated successfully");
       router.invalidate();
+      setIsEditModalOpen(false);
     } catch (error) {
+      console.error("Failed to update room:", error);
       toast.error("Failed to update room");
     }
   };

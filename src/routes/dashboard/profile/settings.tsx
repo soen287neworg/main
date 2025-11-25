@@ -1,8 +1,4 @@
-import {
-  Avatar,
-  AvatarFallback,
-  AvatarImage,
-} from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import {
@@ -41,12 +37,7 @@ const AGE_STORAGE_PREFIX = "dashboard-profile-age-";
 const profileSchema = z.object({
   fullName: z.string().min(2, "Please enter your full name"),
   email: z.string().email("Enter a valid email address"),
-  age: z
-    .coerce.number()
-    .int()
-    .min(13, "You must be at least 13 years old")
-    .max(120, "Please enter a valid age")
-    .optional(),
+  age: z.string().optional(),
 });
 
 const passwordSchema = z
@@ -143,7 +134,7 @@ function RouteComponent() {
     defaultValues: {
       fullName: user?.name ?? "",
       email: user?.email ?? "",
-      age: undefined,
+      age: readStoredAge(user?.id)?.toString() ?? "",
     },
   });
 
@@ -168,7 +159,7 @@ function RouteComponent() {
       profileForm.reset({
         fullName: user.name ?? "",
         email: user.email ?? "",
-        age: readStoredAge(user.id),
+        age: readStoredAge(user.id)?.toString() ?? "",
       });
       setAvatarFile(null);
       setAvatarPreview(user.image ?? undefined);
@@ -186,10 +177,7 @@ function RouteComponent() {
       }
     };
   }, []);
-
-  const handleAvatarChange = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
+  const handleAvatarChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
     if (!file) return;
 
@@ -203,7 +191,82 @@ function RouteComponent() {
     setAvatarPreview(objectUrl);
   };
 
+  const handleAvatarUpload = async () => {
+    if (!avatarFile) return;
+
+    const formData = new FormData();
+    formData.append("image", avatarFile);
+    formData.append("directory", "avatars");
+
+    try {
+      const response = await fetch("/api/upload-image", {
+        method: "POST",
+        body: formData,
+      });
+
+      console.log("Upload response status:", response.status);
+
+      if (!response.ok) {
+        const errorText = await response.text();
+        console.error("Upload failed response:", errorText);
+        throw new Error(`Upload failed: ${response.status}`);
+      }
+
+      const data = await response.json();
+      console.log("Upload response data:", data);
+
+      if (!data.imageUrl) {
+        console.error("No imageUrl in response data:", data);
+        throw new Error("No image URL returned from upload");
+      }
+
+      console.log("Updating user with image URL:", data.imageUrl);
+
+      // Call the server function to update user image
+      const updateResult = await authClient.updateUser({
+        image: data.imageUrl,
+      });
+
+      console.log("Update result:", updateResult);
+
+      // Check different possible response formats
+      if (updateResult && typeof updateResult === "object") {
+        // Check for success property
+        if ("success" in updateResult && !updateResult.success) {
+          const errorMsg = "Failed to update user profile";
+          if ("error" in updateResult && updateResult.error) {
+            throw new Error(
+              typeof updateResult.error === "string"
+                ? updateResult.error
+                : updateResult.error.message || errorMsg
+            );
+          }
+          throw new Error(errorMsg);
+        }
+
+        // Check for status property (false means failure)
+        if ("status" in updateResult && !updateResult.status) {
+          throw new Error("Failed to update user profile");
+        }
+      }
+
+      // If we have no success/status indicators and no errors, assume success
+      if (!updateResult) {
+        throw new Error("Failed to update user profile");
+      }
+
+      setAvatarFile(null);
+      setAvatarPreview(data.imageUrl);
+      toast.success("Avatar uploaded successfully.");
+    } catch (error) {
+      toast.error("Failed to upload avatar image.");
+      console.error("Avatar upload failed:", error);
+    }
+  };
   const handleProfileSubmit = async (values: ProfileFormValues) => {
+    // Convert age from string to number if present
+    const age = values.age ? parseInt(values.age, 10) : undefined;
+
     toast.promise(
       saveProfile({
         data: values,
@@ -211,8 +274,8 @@ function RouteComponent() {
       {
         loading: "Saving profile...",
         success: () => {
-          if (values.age && user?.id) {
-            storeAge(user.id, values.age);
+          if (age && !Number.isNaN(age) && user?.id) {
+            storeAge(user.id, age);
           }
 
           return "Profile updated successfully.";
@@ -296,15 +359,24 @@ function RouteComponent() {
                   variant="outline"
                   onClick={() => fileInputRef.current?.click()}
                 >
-                  Upload new avatar
+                  Select new avatar
                 </Button>
                 {avatarFile ? (
+                  <Button
+                    type="button"
+                    onClick={handleAvatarUpload}
+                    disabled={!avatarFile}
+                  >
+                    Upload avatar
+                  </Button>
+                ) : null}
+                {avatarPreview && avatarPreview !== user?.image ? (
                   <p className="text-xs text-muted-foreground">
-                    Not uploaded yet - kept locally for this session.
+                    New avatar selected but not uploaded yet.
                   </p>
                 ) : (
                   <p className="text-xs text-muted-foreground">
-                    Choose a file to preview; upload will be added later.
+                    Choose an image file to preview and upload.
                   </p>
                 )}
               </div>
@@ -384,7 +456,7 @@ function RouteComponent() {
                       profileForm.reset({
                         fullName: user?.name ?? "",
                         email: user?.email ?? "",
-                        age: readStoredAge(user?.id),
+                        age: readStoredAge(user?.id)?.toString() ?? "",
                       });
                       if (previewUrlRef.current) {
                         URL.revokeObjectURL(previewUrlRef.current);
@@ -465,7 +537,11 @@ function RouteComponent() {
                   <FormItem className="sm:col-span-2">
                     <FormLabel>Current password</FormLabel>
                     <FormControl>
-                      <Input type="password" autoComplete="current-password" {...field} />
+                      <Input
+                        type="password"
+                        autoComplete="current-password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -478,7 +554,11 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>New password</FormLabel>
                     <FormControl>
-                      <Input type="password" autoComplete="new-password" {...field} />
+                      <Input
+                        type="password"
+                        autoComplete="new-password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
@@ -491,7 +571,11 @@ function RouteComponent() {
                   <FormItem>
                     <FormLabel>Confirm new password</FormLabel>
                     <FormControl>
-                      <Input type="password" autoComplete="new-password" {...field} />
+                      <Input
+                        type="password"
+                        autoComplete="new-password"
+                        {...field}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>
