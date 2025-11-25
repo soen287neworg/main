@@ -84,8 +84,8 @@ const data = {
           url: "/dashboard/admin/resources/rooms",
         },
         {
-          title: "Blackout",
-          url: "/dashboard/admin/resources/blackout",
+          title: "Review bookings",
+          url: "/dashboard/admin/resources/bookings",
         },
         {
           title: "Schedules",

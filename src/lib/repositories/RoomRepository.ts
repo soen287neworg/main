@@ -59,12 +59,66 @@ export const getRoomsWithSchedules = async (
             orderBy: { startTime: "desc" },
           },
         },
-        orderBy: [
-          { priority: "desc" },
-          { activeFrom: "desc" },
-        ],
+        orderBy: [{ priority: "desc" }, { activeFrom: "desc" }],
       },
     },
     orderBy: { title: "asc" },
+  });
+};
+
+// Admin methods
+export const getAllRooms = async () => {
+  return prisma.room.findMany({
+    include: {
+      category: true,
+    },
+  });
+};
+
+export const getRoomById = async (roomId: string) => {
+  return prisma.room.findUnique({
+    where: { id: roomId },
+    include: {
+      category: true,
+    },
+  });
+};
+
+export const createRoom = async (roomData: any) => {
+  return prisma.room.create({
+    data: roomData,
+  });
+};
+
+export const updateRoom = async (roomId: string, roomData: any) => {
+  return prisma.room.update({
+    where: { id: roomId },
+    data: roomData,
+  });
+};
+
+export const deleteRoom = async (roomId: string) => {
+  return prisma.room.delete({
+    where: { id: roomId },
+  });
+};
+
+export const getRoomWithDetails = async (roomId: string) => {
+  return prisma.room.findUnique({
+    where: { id: roomId },
+    include: {
+      category: true,
+      bookings: {
+        include: {
+          user: true,
+        },
+      },
+      schedules: {
+        include: {
+          operatingHours: true,
+          blackouts: true,
+        },
+      },
+    },
   });
 };

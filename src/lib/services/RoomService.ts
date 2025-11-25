@@ -1,5 +1,7 @@
 import * as RoomRepository from "@/lib/repositories/RoomRepository";
 import { RoomWithSchedules } from "@/lib/repositories/RoomRepository";
+import { RoomCreateInput, RoomUpdateInput } from "@/generated/prisma/models";
+import { Room, RoomCategory } from "@/generated/prisma/client";
 
 export const getPublicRooms = async (categoryId?: string, search?: string) => {
   // Here you can add any business logic before or after fetching the data.
@@ -26,4 +28,64 @@ export const getRoomsWithSchedules = async (
   search?: string
 ): Promise<RoomWithSchedules[]> => {
   return RoomRepository.getRoomsWithSchedules(search);
+};
+
+// Admin methods with specific input types
+export const getAllRooms = async () => {
+  const rooms = await RoomRepository.getAllRooms();
+  return rooms;
+};
+
+export const getRoomById = async (roomId: string) => {
+  const room = await RoomRepository.getRoomById(roomId);
+  return room;
+};
+
+export const createRoom = async (roomData: {
+  number: string;
+  title: string;
+  description: string;
+  level: string;
+  capacity: number;
+  note?: string | null;
+  categoryId?: string | null;
+  active?: boolean;
+  imageUrl?: string;
+}) => {
+  const room = await RoomRepository.createRoom(roomData);
+  return room;
+};
+
+export const updateRoom = async (
+  roomId: string,
+  roomData: {
+    number?: string;
+    title?: string;
+    description?: string;
+    level?: string;
+    capacity?: number;
+    note?: string | null;
+    categoryId?: string | null;
+    active?: boolean;
+    imageUrl?: string;
+  }
+) => {
+  const room = await RoomRepository.updateRoom(roomId, roomData);
+  return room;
+};
+
+export const deleteRoom = async (roomId: string) => {
+  const room = await RoomRepository.deleteRoom(roomId);
+  return room;
+};
+
+export const getRoomWithDetails = async (roomId: string) => {
+  const room = await RoomRepository.getRoomWithDetails(roomId);
+  return room;
+};
+
+// Image upload method
+export const updateRoomImage = async (roomId: string, imageUrl: string) => {
+  const room = await RoomRepository.updateRoom(roomId, { imageUrl });
+  return room;
 };
