@@ -1,4 +1,5 @@
 import * as RoomRepository from "@/lib/repositories/RoomRepository";
+import { RoomWithSchedules } from "@/lib/repositories/RoomRepository";
 
 export const getPublicRooms = async (categoryId?: string, search?: string) => {
   // Here you can add any business logic before or after fetching the data.
@@ -19,4 +20,10 @@ export const getPublicRoomById = async (roomId: string) => {
   const room = await RoomRepository.getPublicRoom(roomId);
 
   return room;
+};
+
+export const getRoomsWithSchedules = async (
+  search?: string
+): Promise<RoomWithSchedules[]> => {
+  return RoomRepository.getRoomsWithSchedules(search);
 };
