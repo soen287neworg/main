@@ -32,12 +32,9 @@ import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import { z } from "zod";
 
-const AGE_STORAGE_PREFIX = "dashboard-profile-age-";
-
 const profileSchema = z.object({
   fullName: z.string().min(2, "Please enter your full name"),
   email: z.string().email("Enter a valid email address"),
-  age: z.string().optional(),
 });
 
 const passwordSchema = z
@@ -134,7 +131,6 @@ function RouteComponent() {
     defaultValues: {
       fullName: user?.name ?? "",
       email: user?.email ?? "",
-      age: readStoredAge(user?.id)?.toString() ?? "",
     },
   });
 
@@ -159,7 +155,6 @@ function RouteComponent() {
       profileForm.reset({
         fullName: user.name ?? "",
         email: user.email ?? "",
-        age: readStoredAge(user.id)?.toString() ?? "",
       });
       setAvatarFile(null);
       setAvatarPreview(user.image ?? undefined);
@@ -264,9 +259,6 @@ function RouteComponent() {
     }
   };
   const handleProfileSubmit = async (values: ProfileFormValues) => {
-    // Convert age from string to number if present
-    const age = values.age ? parseInt(values.age, 10) : undefined;
-
     toast.promise(
       saveProfile({
         data: values,
@@ -274,10 +266,6 @@ function RouteComponent() {
       {
         loading: "Saving profile...",
         success: () => {
-          if (age && !Number.isNaN(age) && user?.id) {
-            storeAge(user.id, age);
-          }
-
           return "Profile updated successfully.";
         },
         error: (error) =>
@@ -426,26 +414,6 @@ function RouteComponent() {
                       </FormItem>
                     )}
                   />
-                  <FormField
-                    control={profileForm.control}
-                    name="age"
-                    render={({ field }) => (
-                      <FormItem>
-                        <FormLabel>Age</FormLabel>
-                        <FormControl>
-                          <Input
-                            type="number"
-                            min={13}
-                            max={120}
-                            placeholder="18"
-                            {...field}
-                            value={field.value ?? ""}
-                          />
-                        </FormControl>
-                        <FormMessage />
-                      </FormItem>
-                    )}
-                  />
                 </div>
 
                 <div className="flex flex-col gap-3 sm:flex-row sm:justify-end">
@@ -456,7 +424,6 @@ function RouteComponent() {
                       profileForm.reset({
                         fullName: user?.name ?? "",
                         email: user?.email ?? "",
-                        age: readStoredAge(user?.id)?.toString() ?? "",
                       });
                       if (previewUrlRef.current) {
                         URL.revokeObjectURL(previewUrlRef.current);
@@ -604,33 +571,3 @@ function RouteComponent() {
     </div>
   );
 }
-
-const readStoredAge = (userId?: string) => {
-  if (typeof window === "undefined" || !userId) {
-    return undefined;
-  }
-
-  const stored = window.localStorage.getItem(`${AGE_STORAGE_PREFIX}${userId}`);
-  const parsed = Number(stored);
-
-  if (Number.isNaN(parsed)) {
-    return undefined;
-  }
-
-  return parsed;
-};
-
-const storeAge = (userId: string, age?: number) => {
-  if (typeof window === "undefined") {
-    return;
-  }
-
-  const key = `${AGE_STORAGE_PREFIX}${userId}`;
-
-  if (!age) {
-    window.localStorage.removeItem(key);
-    return;
-  }
-
-  window.localStorage.setItem(key, String(age));
-};

@@ -4,10 +4,43 @@ import {
   connectRoleToUser,
   findAllRoles as findAllRolesInRepo,
   disconnectRoleFromUser as disconnectRoleFromUserInRepo,
+  findRoleById,
+  createRole as createRoleInRepo,
+  updateRole as updateRoleInRepo,
+  deleteRoleById,
+  getSystemPermissionForRole,
+  setSystemPermissionForRole,
 } from "../repositories/RoleRepository";
 
 export const findAllRoles = () => {
   return findAllRolesInRepo();
+};
+
+export const findRoleByIdService = (id: string) => {
+  return findRoleById(id);
+};
+
+export const createRole = async (name: string) => {
+  return createRoleInRepo(name);
+};
+
+export const updateRole = async (id: string, name: string) => {
+  return updateRoleInRepo(id, name);
+};
+
+export const deleteRole = async (id: string) => {
+  return deleteRoleById(id);
+};
+
+export const getSystemPermission = async (roleId: string) => {
+  return getSystemPermissionForRole(roleId);
+};
+
+export const setSystemPermission = async (
+  roleId: string,
+  permission: number
+) => {
+  return setSystemPermissionForRole(roleId, permission);
 };
 
 /**
