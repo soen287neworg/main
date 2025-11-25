@@ -364,6 +364,7 @@ export function EditRoomModal({
   const removeImage = () => {
     setSelectedImage(null);
     setImagePreview(null);
+    setCurrentImageUrl(null);
     form.setValue("imageFile", undefined);
   };
 
