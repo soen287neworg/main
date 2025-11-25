@@ -31,7 +31,7 @@ RUN addgroup -g 1001 -S nodejs && \
 WORKDIR /app
 
 # Copy built application from builder stage
-COPY --from=builder --chown=nextjs:nodejs /app/.output ./
+COPY --from=builder --chown=nextjs:nodejs /app/.output ./.output/
 
 # Set user
 USER nextjs
@@ -41,8 +41,6 @@ EXPOSE 3000
 
 # Set environment to production
 ENV NODE_ENV=production
-
-RUN yarn prisma migrate deploy
 
 # Start the application
 ENTRYPOINT ["dumb-init", "--"]
